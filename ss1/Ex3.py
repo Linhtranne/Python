@@ -1,3 +1,3 @@
 a = 5.78
-b =int(a)
+b = int(a)
 print(b)
