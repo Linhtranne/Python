@@ -85,7 +85,6 @@ def delete_product():
 while True:
     menu()
     choice = input("Nhập lựa chọn của bạn: ")
-    
     if choice == "1":
         add_product()
     elif choice == "2":
