@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Estate Property Tree View -->
+    <record id="view_estate_property_tree" model="ir.ui.view">
+        <field name="name">estate.property.tree</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="property_type"/>
+                <field name="address"/>
+                <field name="area"/>
+                <field name="price"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Estate Property Form View -->
+    <record id="view_estate_property_form" model="ir.ui.view">
+        <field name="name">estate.property.form</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="customer_id"/>
+                            <field name="property_type"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="price"/>
+                            <field name="area"/>
+                            <field name="bedrooms"/>
+                            <field name="bathrooms"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="address"/>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Estate Property Search View -->
+    <record id="view_estate_property_search" model="ir.ui.view">
+        <field name="name">estate.property.search</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="address"/>
+                <filter string="Available" name="available" domain="[('status', '=', 'available')]"/>
+                <filter string="Sold" name="sold" domain="[('status', '=', 'sold')]"/>
+                <filter string="Rented" name="rented" domain="[('status', '=', 'rented')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Owner" name="group_by_customer" context="{'group_by': 'customer_id'}"/>
+                    <filter string="Property Type" name="group_by_type" context="{'group_by': 'property_type'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Estate Property Action -->
+    <record id="action_estate_property" model="ir.actions.act_window">
+        <field name="name">Properties</field>
+        <field name="res_model">estate.property</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Property
+            </p>
+            <p>
+                Add properties to manage in the system.
+            </p>
+        </field>
+    </record>
+
+</odoo>

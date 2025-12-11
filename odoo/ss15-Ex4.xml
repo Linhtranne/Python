@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo_architecture_analysis>
+    <module_name>sale</module_name>
+    <description>Phân tích kiến trúc 3 tầng MVC của module Sale - Odoo 17</description>
+    
+    <!-- ============================================ -->
+    <!-- TẦNG 1: MODEL (Database Layer) -->
+    <!-- ============================================ -->
+    <layer name="MODEL" level="1" type="Database Layer">
+        <file>
+            <path>models/sale_order.py</path>
+            <function>Định nghĩa model sale.order - Đơn hàng bán</function>
+            <responsibilities>
+                <item>Cấu trúc dữ liệu đơn hàng (fields)</item>
+                <item>Logic nghiệp vụ (business methods)</item>
+                <item>Tính toán tự động (computed fields)</item>
+                <item>Ràng buộc dữ liệu (constraints)</item>
+                <item>Workflow quản lý (draft → sent → sale → cancel)</item>
+            </responsibilities>
+            
+            <key_code>
+                <method>
+                    <name>action_confirm</name>
+                    <line_number>900-930</line_number>
+                    <importance>★★★★★</importance>
+                    <description>
+                        Method quan trọng nhất - Xác nhận đơn hàng (Quotation → Sales Order)
+                    </description>
+                    <code><![CDATA[
+def action_confirm(self):
+    """ Confirm the given quotation(s) and set their confirmation date.
+    
+    :return: True
+    :rtype: bool
+    :raise: UserError if trying to confirm cancelled SO's
+    """
+    # 1. Kiểm tra điều kiện
+    if not all(order._can_be_confirmed() for order in self):
+        raise UserError(_("Orders not in confirmable state"))
+    
+    # 2. Validate dữ liệu
+    self.order_line._validate_analytic_distribution()
+    
+    # 3. Subscribe khách hàng vào chatter
+    for order in self:
+        order.validate_taxes_on_sales_order()
+        order.message_subscribe([order.partner_id.id])
+    
+    # 4. Cập nhật trạng thái
+    self.write(self._prepare_confirmation_values())
+    
+    # 5. Thực thi logic (tạo delivery, invoice...)
+    self.with_context(context)._action_confirm()
+    
+    # 6. Lock đơn hàng nếu cần
+    self.filtered(lambda so: so._should_be_locked()).action_lock()
+    
+    # 7. Gửi email xác nhận
+    if self.env.context.get('send_email'):
+        self._send_order_confirmation_mail()
+    
+    return True
+                    ]]></code>
+                    <explanation>
+                        <step>1. Kiểm tra đơn hàng có thể xác nhận không</step>
+                        <step>2. Validate phân bổ phân tích kế toán</step>
+                        <step>3. Thêm khách hàng vào theo dõi đơn hàng</step>
+                        <step>4. Cập nhật state='sale', date_order=now()</step>
+                        <step>5. Trigger tạo delivery order, invoice</step>
+                        <step>6. Khóa đơn hàng nếu setting bật</step>
+                        <step>7. Gửi email thông báo cho khách</step>
+                    </explanation>
+                    <why_important>
+                        Đây là điểm chuyển đổi quan trọng nhất trong sales workflow.
+                        Trigger nhiều side effects và không thể undo.
+                    </why_important>
+                </method>
+            </key_code>
+            
+            <class_definition>
+                <name>SaleOrder</name>
+                <inherit>portal.mixin, mail.thread, mail.activity.mixin, utm.mixin</inherit>
+                <table_name>sale.order</table_name>
+                
+                <fields>
+                    <field name="name" type="Char">Số đơn hàng (SO001, SO002...)</field>
+                    <field name="partner_id" type="Many2one">Khách hàng</field>
+                    <field name="state" type="Selection">Trạng thái (draft/sent/sale/cancel)</field>
+                    <field name="date_order" type="Datetime">Ngày đặt hàng</field>
+                    <field name="amount_total" type="Monetary" computed="true">Tổng tiền</field>
+                    <field name="order_line" type="One2many">Chi tiết dòng sản phẩm</field>
+                </fields>
+            </class_definition>
+        </file>
+    </layer>
+    
+    <!-- ============================================ -->
+    <!-- TẦNG 2: VIEW (Presentation Layer) -->
+    <!-- ============================================ -->
+    <layer name="VIEW" level="2" type="Presentation Layer">
+        <file>
+            <path>views/sale_order_views.xml</path>
+            <function>Định nghĩa giao diện hiển thị đơn hàng</function>
+            <responsibilities>
+                <item>Form view - Chi tiết đơn hàng</item>
+                <item>Tree view - Danh sách dạng bảng</item>
+                <item>Kanban view - Dạng thẻ</item>
+                <item>Calendar view - Lịch đơn hàng</item>
+                <item>Graph/Pivot view - Phân tích biểu đồ</item>
+            </responsibilities>
+            
+            <key_code>
+                <element>
+                    <type>button</type>
+                    <line_number>265</line_number>
+                    <importance>★★★★★</importance>
+                    <description>
+                        Nút "Confirm" kết nối VIEW với MODEL - Trái tim của MVC
+                    </description>
+                    <code><![CDATA[
+<button name="action_confirm" 
+        id="action_confirm" 
+        data-hotkey="q"
+        string="Confirm" 
+        class="btn-primary" 
+        type="object" 
+        context="{'validate_analytic': True}"
+        invisible="state != 'sent'"/>
+                    ]]></code>
+                    
+                    <attributes>
+                        <attr name="name" value="action_confirm">
+                            Gọi method action_confirm() trong model sale.order
+                        </attr>
+                        <attr name="id" value="action_confirm">
+                            ID để JavaScript tham chiếu
+                        </attr>
+                        <attr name="data-hotkey" value="q">
+                            Phím tắt Alt+Q để confirm nhanh
+                        </attr>
+                        <attr name="string" value="Confirm">
+                            Text hiển thị trên nút
+                        </attr>
+                        <attr name="class" value="btn-primary">
+                            CSS class - nút màu xanh chính
+                        </attr>
+                        <attr name="type" value="object">
+                            Gọi method Python (không phải action record)
+                        </attr>
+                        <attr name="context" value="{'validate_analytic': True}">
+                            Truyền context để validate kế toán
+                        </attr>
+                        <attr name="invisible" value="state != 'sent'">
+                            Chỉ hiển thị khi state = 'sent'
+                        </attr>
+                    </attributes>
+                    
+                    <workflow>
+                        <step>USER click nút "Confirm"</step>
+                        <step>Odoo gọi method action_confirm()</step>
+                        <step>Model xử lý logic nghiệp vụ</step>
+                        <step>Database được cập nhật</step>
+                        <step>View tự động reload với trạng thái mới</step>
+                    </workflow>
+                    
+                    <why_important>
+                        Đây là điểm kết nối giữa VIEW và MODEL.
+                        Thể hiện rõ kiến trúc MVC của Odoo.
+                        User action → Python method → Database change → UI update
+                    </why_important>
+                </element>
+            </key_code>
+            
+            <view_types>
+                <view name="sale_order_view_activity" type="activity">
+                    <description>Timeline hoạt động</description>
+                </view>
+                <view name="view_sale_order_calendar" type="calendar">
+                    <description>Lịch đơn hàng</description>
+                </view>
+                <view name="view_sale_order_graph" type="graph">
+                    <description>Biểu đồ phân tích</description>
+                </view>
+                <view name="sale_order_tree" type="tree">
+                    <description>Danh sách dạng bảng</description>
+                </view>
+                <view name="view_order_form" type="form">
+                    <description>Form chi tiết đơn hàng</description>
+                    <sections>
+                        <section>Header với các nút action</section>
+                        <section>Thông tin khách hàng</section>
+                        <section>Chi tiết dòng sản phẩm (order_line)</section>
+                        <section>Tổng tiền và thuế</section>
+                        <section>Điều khoản và ghi chú</section>
+                    </sections>
+                </view>
+            </view_types>
+        </file>
+    </layer>
+    
+    <!-- ============================================ -->
+    <!-- TẦNG 3: CONTROLLER (Business Logic & HTTP Layer) -->
+    <!-- ============================================ -->
+    <layer name="CONTROLLER" level="3" type="Business Logic &amp; HTTP Layer">
+        <file>
+            <path>controllers/portal.py</path>
+            <function>Xử lý HTTP request từ Customer Portal</function>
+            <responsibilities>
+                <item>Định nghĩa URL routes (/my/orders, /my/quotes)</item>
+                <item>Xử lý authentication &amp; authorization</item>
+                <item>Chuẩn bị dữ liệu để render templates</item>
+                <item>Log hoạt động của khách hàng</item>
+                <item>Xử lý payment &amp; signature online</item>
+            </responsibilities>
+            
+            <key_code>
+                <method>
+                    <name>portal_order_page</name>
+                    <decorator>@http.route(['/my/orders/&lt;int:order_id&gt;'], type='http', auth="public", website=True)</decorator>
+                    <line_number>110-180</line_number>
+                    <importance>★★★★★</importance>
+                    <description>
+                        Route chi tiết đơn hàng - Entry point cho khách hàng xem đơn online
+                    </description>
+                    <code><![CDATA[
+@http.route(['/my/orders/<int:order_id>'], 
+            type='http', 
+            auth="public", 
+            website=True)
+def portal_order_page(self, order_id, report_type=None, 
+                     access_token=None, message=False, 
+                     download=False, downpayment=None, **kw):
+    
+    # 1. Check quyền truy cập
+    try:
+        order_sudo = self._document_check_access(
+            'sale.order', 
+            order_id, 
+            access_token=access_token
+        )
+    except (AccessError, MissingError):
+        return request.redirect('/my')
+    
+    # 2. Log activity (ghi chatter)
+    if request.env.user.share and access_token:
+        today = fields.Date.today().isoformat()
+        session_obj_date = request.session.get('view_quote_%s' % order_sudo.id)
+        if session_obj_date != today:
+            request.session['view_quote_%s' % order_sudo.id] = today
+            msg = _('Quotation viewed by customer %s', order_sudo.partner_id.name)
+            _message_post_helper("sale.order", order_sudo.id, 
+                                message=msg, token=order_sudo.access_token)
+    
+    # 3. Chuẩn bị dữ liệu
+    values = {
+        'sale_order': order_sudo,
+        'product_documents': order_sudo._get_product_documents(),
+        'message': message,
+        'report_type': 'html',
+        'backend_url': backend_url,
+        'res_company': order_sudo.company_id,
+    }
+    
+    # 4. Thêm payment values nếu cần thanh toán
+    if order_sudo._has_to_be_paid():
+        values.update(
+            self._get_payment_values(order_sudo, downpayment=...)
+        )
+    
+    # 5. Render template
+    return request.render("sale.sale_order_portal_template", values)
+                    ]]></code>
+                    
+                    <decorator_attributes>
+                        <attr name="route" value="/my/orders/&lt;int:order_id&gt;">
+                            URL pattern, &lt;int:order_id&gt; là tham số động
+                        </attr>
+                        <attr name="type" value="http">
+                            HTTP request (không phải JSON RPC)
+                        </attr>
+                        <attr name="auth" value="public">
+                            Cho phép user chưa đăng nhập (dùng access_token)
+                        </attr>
+                        <attr name="website" value="True">
+                            Kích hoạt website context
+                        </attr>
+                    </decorator_attributes>
+                    
+                    <workflow>
+                        <step seq="1">Check quyền truy cập (access_token hoặc login)</step>
+                        <step seq="2">Log "Quotation viewed by customer" vào chatter</step>
+                        <step seq="3">Lấy dữ liệu đơn hàng từ model</step>
+                        <step seq="4">Chuẩn bị payment values nếu cần</step>
+                        <step seq="5">Render template với dữ liệu</step>
+                    </workflow>
+                    
+                    <why_important>
+                        • Entry point cho khách hàng xem đơn hàng online
+                        • Xử lý security (access token, permission check)
+                        • Kết nối frontend (web) với backend (model)
+                        • Tích hợp payment gateway (PayPal, Stripe...)
+                        • Enable e-commerce workflow (khách tự xác nhận &amp; thanh toán)
+                    </why_important>
+                    
+                    <url_example>
+                        https://yourcompany.odoo.com/my/orders/123?access_token=abc123xyz
+                    </url_example>
+                </method>
+            </key_code>
+            
+            <routes>
+                <route path="/my/quotes" method="portal_my_quotes">
+                    Danh sách báo giá của khách hàng
+                </route>
+                <route path="/my/orders" method="portal_my_orders">
+                    Danh sách đơn hàng đã xác nhận
+                </route>
+                <route path="/my/orders/&lt;int:order_id&gt;" method="portal_order_page">
+                    Chi tiết đơn hàng cụ thể
+                </route>
+            </routes>
+        </file>
+    </layer>
+    
+    <!-- ============================================ -->
+    <!-- KIẾN TRÚC TỔNG QUAN -->
+    <!-- ============================================ -->
+    <architecture_diagram>
+        <description>Luồng hoạt động MVC trong Odoo</description>
+        <flow>
+            <step layer="CONTROLLER" seq="1">
+                Nhận HTTP request từ user
+                Route: /my/orders/123
+            </step>
+            <step layer="CONTROLLER" seq="2">
+                Check authentication &amp; authorization
+                Chuẩn bị dữ liệu
+            </step>
+            <step layer="MODEL" seq="3">
+                Gọi methods: action_confirm(), _compute_amount_total()
+                Thao tác với database
+            </step>
+            <step layer="MODEL" seq="4">
+                Trả dữ liệu về controller
+                sale_order object với tất cả fields
+            </step>
+            <step layer="VIEW" seq="5">
+                Controller render template XML
+                Hiển thị dữ liệu cho user
+            </step>
+            <step layer="VIEW" seq="6">
+                User click nút "Confirm"
+                Trigger method action_confirm()
+            </step>
+            <step layer="MODEL" seq="7">
+                Xử lý logic, cập nhật database
+                Trả kết quả về VIEW
+            </step>
+            <step layer="VIEW" seq="8">
+                UI tự động reload với trạng thái mới
+                Hiển thị thông báo thành công
+            </step>
+        </flow>
+    </architecture_diagram>
+    
+    <!-- ============================================ -->
+    <!-- SO SÁNH VỚI MODULE CUSTOM -->
+    <!-- ============================================ -->
+    <comparison>
+        <module type="core" name="sale">
+            <models count="19">
+                sale_order, sale_order_line, res_partner, product_template...
+            </models>
+            <views count="14">
+                form, tree, kanban, calendar, graph, pivot, activity...
+            </views>
+            <controllers count="1">portal.py (10+ routes)</controllers>
+            <security count="3">ir.model.access.csv, ir_rules.xml, res_groups.xml</security>
+            <data count="9">sequences, templates, onboarding...</data>
+            <wizards count="9">invoice, cancel, discount...</wizards>
+            <reports count="3">sale report, invoice report...</reports>
+            <tests count="25">Comprehensive test coverage</tests>
+            <complexity>VERY HIGH</complexity>
+        </module>
+        
+        <module type="custom" name="my_student_module">
+            <models count="1">models.py</models>
+            <views count="2">views.xml, templates.xml</views>
+            <controllers count="1">controllers.py (1 route)</controllers>
+            <security count="1">ir.model.access.csv</security>
+            <data count="1">demo.xml</data>
+            <wizards count="0">None</wizards>
+            <reports count="0">None</reports>
+            <tests count="0">None</tests>
+            <complexity>LOW</complexity>
+        </module>
+        
+        <conclusion>
+            Module Sale core phức tạp hơn nhiều nhưng nguyên tắc kiến trúc 3 tầng giống nhau.
+            Custom module có thể học hỏi structure và best practices từ core modules.
+        </conclusion>
+    </comparison>
+    
+    <!-- ============================================ -->
+    <!-- KẾT LUẬN -->
+    <!-- ============================================ -->
+    <conclusion>
+        <principles>
+            <principle>Separation of Concerns - Tách biệt rõ ràng 3 tầng</principle>
+            <principle>Model chứa logic nghiệp vụ và database operations</principle>
+            <principle>View chịu trách nhiệm presentation layer</principle>
+            <principle>Controller xử lý HTTP routing và orchestration</principle>
+            <principle>Mỗi tầng hoạt động độc lập nhưng phối hợp chặt chẽ</principle>
+        </principles>
+        
+        <benefits>
+            <benefit>Dễ bảo trì - Thay đổi UI không ảnh hưởng logic</benefit>
+            <benefit>Dễ mở rộng - Thêm view mới không cần sửa model</benefit>
+            <benefit>Dễ test - Test từng tầng độc lập</benefit>
+            <benefit>Tái sử dụng - Model có thể dùng cho nhiều view/controller</benefit>
+            <benefit>Collaboration - Team có thể work parallel trên các tầng khác nhau</benefit>
+        </benefits>
+        
+        <summary>
+            Module Sale của Odoo là ví dụ điển hình cho kiến trúc MVC 3 tầng.
+            Mỗi file đảm nhiệm một vai trò riêng biệt và phối hợp hoàn hảo để 
+            tạo nên một hệ thống quản lý bán hàng hoàn chỉnh.
+        </summary>
+    </conclusion>
+    
+    <!-- ============================================ -->
+    <!-- METADATA -->
+    <!-- ============================================ -->
+    <metadata>
+        <author>GitHub Copilot</author>
+        <model>Claude Sonnet 4.5</model>
+        <date>2025-12-11</date>
+        <odoo_version>17.0</odoo_version>
+        <module_analyzed>sale</module_analyzed>
+        <container>odoo17_dev_container</container>
+        <database>PostgreSQL 15</database>
+    </metadata>
+</odoo_architecture_analysis>

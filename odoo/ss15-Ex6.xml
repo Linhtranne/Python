@@ -1,0 +1,1191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module_documentation>
+    <module_info>
+        <name>sale</name>
+        <version>1.2</version>
+        <category>Sales/Sales</category>
+        <odoo_version>17.0</odoo_version>
+        <license>LGPL-3</license>
+    </module_info>
+
+    <!-- ============================================ -->
+    <!-- PHẦN 1: MODULE THUỘC NGHIỆP VỤ NÀO? -->
+    <!-- ============================================ -->
+    <section id="1">
+        <title>Module này thuộc nghiệp vụ nào?</title>
+        
+        <business_domain>
+            <primary>Quản lý Bán hàng (Sales Management)</primary>
+            <description>
+                Module Sale là module core của Odoo quản lý toàn bộ quy trình bán hàng 
+                từ A-Z, từ việc tạo báo giá, xác nhận đơn hàng, đến việc tạo hóa đơn 
+                và giao hàng.
+            </description>
+        </business_domain>
+
+        <key_features>
+            <feature priority="high">
+                <name>Quản lý Báo giá (Quotations)</name>
+                <description>
+                    Tạo và gửi báo giá cho khách hàng. Khách hàng có thể xem, 
+                    xác nhận hoặc từ chối báo giá online qua Customer Portal.
+                </description>
+            </feature>
+            
+            <feature priority="high">
+                <name>Quản lý Đơn hàng (Sales Orders)</name>
+                <description>
+                    Xử lý đơn hàng đã xác nhận, theo dõi trạng thái giao hàng và 
+                    xuất hóa đơn. Hỗ trợ nhiều trạng thái: Draft → Sent → Sale → Done/Cancel.
+                </description>
+            </feature>
+            
+            <feature priority="medium">
+                <name>Tích hợp Thanh toán Online</name>
+                <description>
+                    Cho phép khách hàng thanh toán trực tuyến qua các cổng thanh toán 
+                    (PayPal, Stripe, Credit Card). Hỗ trợ thanh toán đặt cọc (downpayment).
+                </description>
+            </feature>
+            
+            <feature priority="medium">
+                <name>Quản lý Giá & Bảng giá (Pricelists)</name>
+                <description>
+                    Áp dụng chiết khấu, khuyến mãi theo bảng giá. 
+                    Hỗ trợ giá theo khách hàng, theo số lượng, theo thời gian.
+                </description>
+            </feature>
+            
+            <feature priority="medium">
+                <name>Báo cáo & Phân tích (Analytics)</name>
+                <description>
+                    Báo cáo doanh số theo sản phẩm, khách hàng, nhân viên, khu vực. 
+                    Biểu đồ Pivot, Graph để phân tích xu hướng.
+                </description>
+            </feature>
+            
+            <feature priority="low">
+                <name>Chữ ký số & Xác thực Online</name>
+                <description>
+                    Yêu cầu khách hàng ký xác nhận đơn hàng trực tuyến. 
+                    Lưu trữ chữ ký và thông tin người ký.
+                </description>
+            </feature>
+        </key_features>
+
+        <workflow>
+            <description>Quy trình nghiệp vụ chuẩn của module Sale</description>
+            <step seq="1">
+                <state>Draft</state>
+                <action>Nhân viên tạo báo giá cho khách hàng</action>
+                <actor>Salesperson</actor>
+            </step>
+            <step seq="2">
+                <state>Sent</state>
+                <action>Gửi báo giá qua email hoặc portal link</action>
+                <actor>System / Salesperson</actor>
+            </step>
+            <step seq="3">
+                <state>Sale</state>
+                <action>Khách hàng xác nhận → Chuyển thành đơn hàng</action>
+                <actor>Customer / Salesperson</actor>
+            </step>
+            <step seq="4">
+                <state>Invoice Created</state>
+                <action>Tạo hóa đơn (toàn bộ hoặc từng phần)</action>
+                <actor>Accountant / System</actor>
+            </step>
+            <step seq="5">
+                <state>Delivery Created</state>
+                <action>Tạo lệnh giao hàng (nếu có module stock)</action>
+                <actor>Warehouse / System</actor>
+            </step>
+            <step seq="6">
+                <state>Done / Cancel</state>
+                <action>Hoàn thành hoặc hủy đơn hàng</action>
+                <actor>Manager</actor>
+            </step>
+        </workflow>
+
+        <integration>
+            <depends_on>
+                <module name="sales_team">Quản lý team bán hàng</module>
+                <module name="account_payment">Kế toán & Thanh toán</module>
+                <module name="utm">Tracking marketing (Campaign, Medium, Source)</module>
+            </depends_on>
+            
+            <integrates_with>
+                <module name="stock">Quản lý kho - Tạo delivery orders</module>
+                <module name="account">Kế toán - Tạo invoices</module>
+                <module name="crm">CRM - Chuyển đổi leads thành opportunities</module>
+                <module name="website_sale">E-commerce - Bán hàng online</module>
+                <module name="payment">Cổng thanh toán online</module>
+            </integrates_with>
+        </integration>
+
+        <use_cases>
+            <use_case>
+                <scenario>B2B Sales</scenario>
+                <description>
+                    Công ty bán hàng cho doanh nghiệp khác. Tạo báo giá phức tạp 
+                    với nhiều dòng sản phẩm, chiết khấu theo volume, điều khoản thanh toán.
+                </description>
+            </use_case>
+            
+            <use_case>
+                <scenario>B2C E-commerce</scenario>
+                <description>
+                    Bán lẻ trực tuyến cho người tiêu dùng. Khách đặt hàng trên website, 
+                    thanh toán online, nhận hàng tại nhà.
+                </description>
+            </use_case>
+            
+            <use_case>
+                <scenario>Service Sales</scenario>
+                <description>
+                    Bán dịch vụ tư vấn, subscription. Theo dõi giờ làm việc, 
+                    xuất hóa đơn định kỳ.
+                </description>
+            </use_case>
+        </use_cases>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PHẦN 2: TỐI THIỂU 3 MODEL QUAN TRỌNG -->
+    <!-- ============================================ -->
+    <section id="2">
+        <title>Tối thiểu 3 model quan trọng (tên + chức năng)</title>
+
+        <!-- MODEL 1: sale.order -->
+        <model rank="1" importance="critical">
+            <name>sale.order</name>
+            <file>models/sale_order.py</file>
+            <table_name>sale_order</table_name>
+            <description>
+                Model chính quản lý Đơn hàng Bán (Sales Order / Quotation).
+                Đây là trái tim của module Sale.
+            </description>
+
+            <responsibilities>
+                <responsibility>Lưu trữ thông tin đơn hàng: khách hàng, ngày đặt, trạng thái</responsibility>
+                <responsibility>Quản lý workflow: draft → sent → sale → cancel</responsibility>
+                <responsibility>Tính toán tổng tiền, thuế, chiết khấu</responsibility>
+                <responsibility>Tạo invoice (hóa đơn) và delivery order (phiếu giao hàng)</responsibility>
+                <responsibility>Gửi email thông báo cho khách hàng</responsibility>
+                <responsibility>Theo dõi thanh toán và giao hàng</responsibility>
+            </responsibilities>
+
+            <key_fields>
+                <field name="name" type="Char" required="true">
+                    Số đơn hàng (VD: SO001, SO002...). Auto-generate từ sequence.
+                </field>
+                <field name="partner_id" type="Many2one" model="res.partner" required="true">
+                    Khách hàng đặt hàng.
+                </field>
+                <field name="state" type="Selection" default="draft">
+                    Trạng thái đơn hàng: draft (Báo giá), sent (Đã gửi), sale (Đã xác nhận), cancel (Đã hủy).
+                </field>
+                <field name="date_order" type="Datetime" required="true">
+                    Ngày đặt hàng / Ngày xác nhận.
+                </field>
+                <field name="order_line" type="One2many" model="sale.order.line" inverse="order_id">
+                    Các dòng sản phẩm trong đơn hàng (One2many relationship).
+                </field>
+                <field name="amount_untaxed" type="Monetary" computed="true">
+                    Tổng tiền chưa thuế. Compute từ order_line.
+                </field>
+                <field name="amount_tax" type="Monetary" computed="true">
+                    Tổng thuế. Compute từ order_line.
+                </field>
+                <field name="amount_total" type="Monetary" computed="true">
+                    Tổng tiền đơn hàng (bao gồm thuế).
+                </field>
+                <field name="invoice_status" type="Selection">
+                    Trạng thái xuất hóa đơn: to invoice, invoiced, no, upselling.
+                </field>
+                <field name="pricelist_id" type="Many2one" model="product.pricelist">
+                    Bảng giá áp dụng cho đơn hàng này.
+                </field>
+                <field name="user_id" type="Many2one" model="res.users">
+                    Nhân viên bán hàng phụ trách.
+                </field>
+                <field name="team_id" type="Many2one" model="crm.team">
+                    Đội bán hàng.
+                </field>
+            </key_fields>
+
+            <key_methods>
+                <method name="action_confirm" type="business">
+                    <description>
+                        Xác nhận đơn hàng. Chuyển state từ 'sent' → 'sale'.
+                        Trigger tạo delivery order, subscribe khách hàng, gửi email.
+                    </description>
+                    <returns>True</returns>
+                    <raises>UserError nếu đơn hàng không ở trạng thái có thể confirm</raises>
+                </method>
+
+                <method name="action_cancel" type="business">
+                    <description>
+                        Hủy đơn hàng. Set state = 'cancel'.
+                        Hủy các delivery và invoice liên quan (nếu chưa xử lý).
+                    </description>
+                </method>
+
+                <method name="_create_invoices" type="business">
+                    <description>
+                        Tạo hóa đơn (invoice) từ đơn hàng.
+                        Hỗ trợ tạo invoice toàn bộ hoặc từng phần (downpayment).
+                    </description>
+                    <returns>account.move recordset</returns>
+                </method>
+
+                <method name="action_quotation_send" type="action">
+                    <description>
+                        Mở wizard gửi email báo giá cho khách hàng.
+                        Load email template và cho phép customize trước khi gửi.
+                    </description>
+                    <returns>ir.actions.act_window dict</returns>
+                </method>
+
+                <method name="_compute_amounts" type="compute">
+                    <description>
+                        Tính toán amount_untaxed, amount_tax, amount_total.
+                        Depends on order_line.price_subtotal và order_line.price_tax.
+                    </description>
+                </method>
+
+                <method name="create" type="orm">
+                    <description>
+                        Override create để auto-generate số đơn hàng từ sequence.
+                        Set name = 'SO001', 'SO002'... nếu name = 'New'.
+                    </description>
+                </method>
+            </key_methods>
+
+            <inheritance>
+                <inherit>portal.mixin</inherit>
+                <inherit>mail.thread</inherit>
+                <inherit>mail.activity.mixin</inherit>
+                <inherit>utm.mixin</inherit>
+            </inheritance>
+
+            <sql_constraints>
+                <constraint name="date_order_conditional_required">
+                    CHECK((state = 'sale' AND date_order IS NOT NULL) OR state != 'sale')
+                    - Đơn hàng đã confirm phải có date_order
+                </constraint>
+            </sql_constraints>
+        </model>
+
+        <!-- MODEL 2: sale.order.line -->
+        <model rank="2" importance="critical">
+            <name>sale.order.line</name>
+            <file>models/sale_order_line.py</file>
+            <table_name>sale_order_line</table_name>
+            <description>
+                Model quản lý Chi tiết dòng sản phẩm trong đơn hàng.
+                Mỗi dòng đại diện cho một sản phẩm/dịch vụ được bán.
+            </description>
+
+            <responsibilities>
+                <responsibility>Lưu thông tin sản phẩm, số lượng, đơn giá</responsibility>
+                <responsibility>Tính toán giá sau chiết khấu và thuế</responsibility>
+                <responsibility>Theo dõi số lượng đã giao và đã xuất hóa đơn</responsibility>
+                <responsibility>Quản lý product variant (màu sắc, size...)</responsibility>
+                <responsibility>Hỗ trợ section và note trong đơn hàng</responsibility>
+            </responsibilities>
+
+            <key_fields>
+                <field name="order_id" type="Many2one" model="sale.order" required="true" ondelete="cascade">
+                    Đơn hàng chứa dòng này (Many2one relationship).
+                </field>
+                <field name="product_id" type="Many2one" model="product.product">
+                    Sản phẩm được bán (product variant).
+                </field>
+                <field name="name" type="Text" required="true">
+                    Mô tả sản phẩm/dịch vụ. Tự động điền từ product_id.
+                </field>
+                <field name="product_uom_qty" type="Float" default="1.0">
+                    Số lượng đặt hàng.
+                </field>
+                <field name="product_uom" type="Many2one" model="uom.uom">
+                    Đơn vị tính (Unit, Kg, Box...).
+                </field>
+                <field name="price_unit" type="Float">
+                    Đơn giá (chưa thuế, chưa chiết khấu).
+                </field>
+                <field name="discount" type="Float" default="0.0">
+                    Phần trăm chiết khấu (0-100%).
+                </field>
+                <field name="tax_id" type="Many2many" model="account.tax">
+                    Các loại thuế áp dụng (VAT, Tax...).
+                </field>
+                <field name="price_subtotal" type="Monetary" computed="true">
+                    Thành tiền chưa thuế = (price_unit * qty * (1 - discount/100)).
+                </field>
+                <field name="price_total" type="Monetary" computed="true">
+                    Thành tiền có thuế = price_subtotal + tax.
+                </field>
+                <field name="qty_delivered" type="Float" computed="true">
+                    Số lượng đã giao hàng.
+                </field>
+                <field name="qty_invoiced" type="Float" computed="true">
+                    Số lượng đã xuất hóa đơn.
+                </field>
+                <field name="display_type" type="Selection">
+                    Loại dòng: False (product), 'line_section' (tiêu đề), 'line_note' (ghi chú).
+                </field>
+            </key_fields>
+
+            <key_methods>
+                <method name="_compute_amount" type="compute">
+                    <description>
+                        Tính price_subtotal và price_total dựa trên price_unit, qty, discount, tax.
+                    </description>
+                    <depends>product_uom_qty, discount, price_unit, tax_id</depends>
+                </method>
+
+                <method name="_prepare_invoice_line" type="business">
+                    <description>
+                        Chuẩn bị dữ liệu để tạo invoice line từ sale order line.
+                    </description>
+                    <returns>dict với data cho account.move.line</returns>
+                </method>
+
+                <method name="product_id_change" type="onchange">
+                    <description>
+                        Khi thay đổi product_id, tự động cập nhật name, price_unit, tax_id, uom.
+                    </description>
+                </method>
+
+                <method name="_compute_qty_delivered" type="compute">
+                    <description>
+                        Tính số lượng đã giao hàng từ stock.move (nếu có module stock).
+                    </description>
+                </method>
+            </key_methods>
+
+            <sql_constraints>
+                <constraint name="accountable_required_fields">
+                    CHECK(display_type IS NOT NULL OR (product_id IS NOT NULL AND product_uom IS NOT NULL))
+                    - Dòng sản phẩm phải có product và uom
+                </constraint>
+                <constraint name="non_accountable_null_fields">
+                    CHECK(display_type IS NULL OR (product_id IS NULL AND price_unit = 0))
+                    - Dòng section/note không được có product và price
+                </constraint>
+            </sql_constraints>
+        </model>
+
+        <!-- MODEL 3: sale.report -->
+        <model rank="3" importance="high">
+            <name>sale.report</name>
+            <file>report/sale_report.py</file>
+            <table_name>sale_report</table_name>
+            <auto>false</auto>
+            <description>
+                Model báo cáo phân tích doanh số bán hàng.
+                Đây là SQL View (không phải bảng thực), tổng hợp dữ liệu từ sale.order và sale.order.line.
+            </description>
+
+            <responsibilities>
+                <responsibility>Tổng hợp dữ liệu bán hàng theo nhiều chiều (sản phẩm, khách hàng, thời gian...)</responsibility>
+                <responsibility>Hỗ trợ pivot table và graph view để phân tích</responsibility>
+                <responsibility>Tính toán các chỉ số: doanh số, số lượng, chiết khấu trung bình</responsibility>
+                <responsibility>Filter theo trạng thái, team, nhân viên, khu vực</responsibility>
+            </responsibilities>
+
+            <type>SQL View - Read-only reporting model</type>
+
+            <key_fields>
+                <field name="name" type="Char">Số đơn hàng</field>
+                <field name="date" type="Datetime">Ngày đặt hàng</field>
+                <field name="partner_id" type="Many2one" model="res.partner">Khách hàng</field>
+                <field name="user_id" type="Many2one" model="res.users">Nhân viên bán</field>
+                <field name="team_id" type="Many2one" model="crm.team">Đội bán hàng</field>
+                <field name="product_id" type="Many2one" model="product.product">Sản phẩm</field>
+                <field name="product_tmpl_id" type="Many2one" model="product.template">Template sản phẩm</field>
+                <field name="categ_id" type="Many2one" model="product.category">Danh mục sản phẩm</field>
+                <field name="state" type="Selection">Trạng thái đơn</field>
+                <field name="product_uom_qty" type="Float">Số lượng đặt</field>
+                <field name="qty_delivered" type="Float">Số lượng đã giao</field>
+                <field name="qty_invoiced" type="Float">Số lượng đã xuất HĐ</field>
+                <field name="price_subtotal" type="Monetary">Doanh thu chưa thuế</field>
+                <field name="price_total" type="Monetary">Doanh thu có thuế</field>
+                <field name="discount" type="Float" group_operator="avg">Chiết khấu TB (%)</field>
+                <field name="discount_amount" type="Monetary">Tổng tiền chiết khấu</field>
+                <field name="country_id" type="Many2one" model="res.country">Quốc gia KH</field>
+                <field name="campaign_id" type="Many2one" model="utm.campaign">Chiến dịch Marketing</field>
+                <field name="nbr" type="Integer">Số dòng sản phẩm</field>
+            </key_fields>
+
+            <sql_view>
+                <description>
+                    View được tạo từ JOIN giữa sale_order, sale_order_line, res_partner, product_product.
+                    GROUP BY nhiều dimension để tổng hợp dữ liệu.
+                </description>
+                <query_structure>
+                    SELECT 
+                        sol.id,
+                        so.name,
+                        so.date_order,
+                        so.partner_id,
+                        sol.product_id,
+                        SUM(sol.product_uom_qty) as product_uom_qty,
+                        SUM(sol.price_subtotal) as price_subtotal,
+                        AVG(sol.discount) as discount
+                    FROM sale_order_line sol
+                    JOIN sale_order so ON sol.order_id = so.id
+                    WHERE so.state IN ('sale', 'done')
+                    GROUP BY ...
+                </query_structure>
+            </sql_view>
+
+            <use_cases>
+                <use_case>Phân tích doanh số theo sản phẩm/danh mục</use_case>
+                <use_case>Đánh giá hiệu suất nhân viên bán hàng</use_case>
+                <use_case>Theo dõi xu hướng mua hàng theo thời gian</use_case>
+                <use_case>Phân tích khách hàng theo khu vực địa lý</use_case>
+                <use_case>Đo lường hiệu quả chiến dịch marketing (UTM)</use_case>
+            </use_cases>
+        </model>
+
+        <!-- BONUS MODEL 4: res.partner (extended) -->
+        <model rank="4" importance="medium">
+            <name>res.partner</name>
+            <file>models/res_partner.py</file>
+            <inherit>true</inherit>
+            <description>
+                Kế thừa model res.partner (Khách hàng/Đối tác) để thêm các field 
+                và method liên quan đến bán hàng.
+            </description>
+
+            <added_fields>
+                <field name="sale_order_count" type="Integer" computed="true">
+                    Tổng số đơn hàng của khách hàng này.
+                </field>
+                <field name="sale_order_ids" type="One2many" model="sale.order" inverse="partner_id">
+                    Danh sách tất cả đơn hàng của khách hàng.
+                </field>
+                <field name="sale_warn" type="Selection">
+                    Cảnh báo khi bán hàng cho khách này (no-message, warning, block).
+                </field>
+                <field name="sale_warn_msg" type="Text">
+                    Nội dung cảnh báo hiển thị cho nhân viên bán.
+                </field>
+            </added_fields>
+
+            <purpose>
+                Enriching partner data với thông tin sales-specific để dễ dàng 
+                theo dõi lịch sử mua hàng và quản lý khách hàng VIP/blacklist.
+            </purpose>
+        </model>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PHẦN 3: 2 VIEW QUAN TRỌNG -->
+    <!-- ============================================ -->
+    <section id="3">
+        <title>2 view quan trọng (form/tree/menu...)</title>
+
+        <!-- VIEW 1: sale_order form view -->
+        <view rank="1" importance="critical">
+            <type>form</type>
+            <name>view_order_form</name>
+            <model>sale.order</model>
+            <file>views/sale_order_views.xml</file>
+            <xml_id>sale.view_order_form</xml_id>
+
+            <description>
+                Form view chính để tạo và chỉnh sửa Đơn hàng/Báo giá.
+                Đây là giao diện quan trọng nhất mà nhân viên bán hàng sử dụng hàng ngày.
+            </description>
+
+            <structure>
+                <header>
+                    <buttons>
+                        <button name="action_confirm" string="Confirm" 
+                                class="btn-primary" type="object"
+                                invisible="state != 'sent'">
+                            Xác nhận báo giá thành đơn hàng
+                        </button>
+                        <button name="action_quotation_send" string="Send by Email"
+                                type="object" invisible="state != 'draft'">
+                            Gửi báo giá qua email
+                        </button>
+                        <button name="%(sale.action_view_sale_advance_payment_inv)d"
+                                string="Create Invoice" type="action">
+                            Tạo hóa đơn từ đơn hàng
+                        </button>
+                        <button name="action_cancel" string="Cancel" type="object">
+                            Hủy đơn hàng
+                        </button>
+                    </buttons>
+                    <statusbar>
+                        <field name="state" statusbar_visible="draft,sent,sale"/>
+                        Draft (Nháp) → Sent (Đã gửi) → Sale (Đã xác nhận)
+                    </statusbar>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box">
+                        <button name="action_view_invoice" icon="fa-pencil-square-o">
+                            Xem hóa đơn liên quan (statinfo)
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        Hiển thị số đơn hàng lớn: SO001, SO002...
+                    </div>
+
+                    <group name="sale_header">
+                        <group name="partner_details">
+                            <field name="partner_id" required="1">
+                                Khách hàng (với widget res_partner_many2one)
+                            </field>
+                            <field name="partner_invoice_id">
+                                Địa chỉ xuất hóa đơn
+                            </field>
+                            <field name="partner_shipping_id">
+                                Địa chỉ giao hàng
+                            </field>
+                        </group>
+
+                        <group name="order_details">
+                            <field name="date_order">Ngày đặt hàng</field>
+                            <field name="pricelist_id">Bảng giá</field>
+                            <field name="payment_term_id">Điều khoản thanh toán</field>
+                            <field name="validity_date">Ngày hết hạn báo giá</field>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Order Lines" name="order_lines">
+                            <field name="order_line" widget="section_and_note_one2many">
+                                Danh sách sản phẩm (One2many table)
+                                - product_id: Chọn sản phẩm
+                                - product_uom_qty: Số lượng
+                                - price_unit: Đơn giá
+                                - discount: Chiết khấu %
+                                - tax_id: Thuế
+                                - price_subtotal: Thành tiền
+                            </field>
+
+                            <group name="note_group">
+                                <group>
+                                    <field name="amount_untaxed">Tổng chưa thuế</field>
+                                    <field name="amount_tax">Tổng thuế</field>
+                                    <field name="amount_total">Tổng cộng</field>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Other Information">
+                            <group>
+                                <field name="user_id">Nhân viên bán</field>
+                                <field name="team_id">Đội bán hàng</field>
+                                <field name="client_order_ref">Ref của khách</field>
+                                <field name="commitment_date">Ngày giao hàng</field>
+                            </group>
+                        </page>
+
+                        <page string="Terms and Conditions">
+                            <field name="note">Điều khoản hợp đồng</field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter>
+                    <field name="message_follower_ids">Followers</field>
+                    <field name="activity_ids">Activities</field>
+                    <field name="message_ids">Messages/Log</field>
+                </chatter>
+            </structure>
+
+            <features>
+                <feature>Responsive design - Hiển thị tốt trên mobile</feature>
+                <feature>Smart buttons - Nút thống kê invoice count</feature>
+                <feature>Conditional visibility - Ẩn/hiện button theo state</feature>
+                <feature>Widget đặc biệt - section_and_note_one2many cho order_line</feature>
+                <feature>Statusbar - Trực quan hóa workflow</feature>
+                <feature>Chatter integration - Communication hub</feature>
+            </features>
+
+            <why_important>
+                Form view này là giao diện chính mà sales team sử dụng để:
+                - Tạo báo giá mới cho khách hàng
+                - Chỉnh sửa sản phẩm, giá, chiết khấu
+                - Gửi email báo giá
+                - Xác nhận đơn hàng
+                - Theo dõi trạng thái thanh toán và giao hàng
+                - Giao tiếp với khách qua chatter
+            </why_important>
+        </view>
+
+        <!-- VIEW 2: sale_order tree view + menu -->
+        <view rank="2" importance="high">
+            <type>tree + action + menu</type>
+            <name>sale_order_tree + action_orders + sale_order_menu</name>
+            <model>sale.order</model>
+            <file>views/sale_order_views.xml + views/sale_menus.xml</file>
+
+            <description>
+                Tree view (list view) hiển thị danh sách tất cả đơn hàng dạng bảng.
+                Kết hợp với action và menu để truy cập từ top menu.
+            </description>
+
+            <tree_view>
+                <xml_id>sale.sale_order_tree</xml_id>
+                <structure>
+                    <header>
+                        <button name="%(sale.action_view_sale_advance_payment_inv)d"
+                                string="Create Invoices" class="btn-secondary">
+                            Tạo hóa đơn hàng loạt (multi-select)
+                        </button>
+                    </header>
+
+                    <columns>
+                        <field name="name" decoration-bf="1">Số đơn hàng (Bold)</field>
+                        <field name="date_order" widget="date">Ngày đặt</field>
+                        <field name="partner_id">Khách hàng</field>
+                        <field name="user_id" widget="many2one_avatar_user">Nhân viên (với avatar)</field>
+                        <field name="amount_total" widget="monetary" 
+                               decoration-info="invoice_status == 'to invoice'">
+                            Tổng tiền (màu xanh nếu cần invoice)
+                        </field>
+                        <field name="state" widget="badge"
+                               decoration-success="state == 'sale'"
+                               decoration-info="state == 'draft'"
+                               decoration-primary="state == 'sent'">
+                            Trạng thái (badge màu sắc)
+                        </field>
+                        <field name="invoice_status" widget="badge">
+                            Trạng thái invoice
+                        </field>
+                    </columns>
+
+                    <decorations>
+                        <decoration-muted>state == 'cancel'</decoration-muted>
+                        Đơn hàng đã hủy hiển thị màu xám
+                    </decorations>
+                </structure>
+
+                <features>
+                    <feature>Sample data - Hiển thị dữ liệu mẫu khi chưa có record</feature>
+                    <feature>Multi-select - Chọn nhiều đơn để xử lý hàng loạt</feature>
+                    <feature>Sortable columns - Click header để sort</feature>
+                    <feature>Filterable - Filter theo state, date, partner...</feature>
+                    <feature>Optional fields - User có thể ẩn/hiện cột</feature>
+                    <feature>Sum aggregation - Tính tổng amount_total ở footer</feature>
+                </features>
+            </tree_view>
+
+            <action>
+                <xml_id>sale.action_orders</xml_id>
+                <type>ir.actions.act_window</type>
+                <name>Sales Orders</name>
+                <model>sale.order</model>
+                <views>
+                    <view sequence="1" mode="tree"/>
+                    <view sequence="2" mode="form"/>
+                    <view sequence="3" mode="kanban"/>
+                    <view sequence="4" mode="calendar"/>
+                    <view sequence="5" mode="pivot"/>
+                    <view sequence="6" mode="graph"/>
+                    <view sequence="7" mode="activity"/>
+                </views>
+                <domain>[('state', 'not in', ('draft', 'sent', 'cancel'))]</domain>
+                <context>{'search_default_my_sale_orders': 1}</context>
+                <help>
+                    Click Create để tạo đơn hàng mới.
+                    Quotation là báo giá chờ xác nhận, Sales Order là đơn đã xác nhận.
+                </help>
+            </action>
+
+            <menu_structure>
+                <menu id="sale_menu_root" name="Sales" sequence="20">
+                    Top level menu trong Odoo navbar
+                    
+                    <submenu id="sale_order_menu" name="Orders">
+                        <menuitem id="menu_sale_order" name="Quotations"
+                                  action="action_quotations">
+                            Hiển thị đơn hàng ở trạng thái Draft/Sent
+                        </menuitem>
+                        
+                        <menuitem id="menu_orders" name="Orders"
+                                  action="action_orders">
+                            Hiển thị đơn hàng đã xác nhận (state=sale)
+                        </menuitem>
+                    </submenu>
+
+                    <submenu id="sale_products_menu" name="Products">
+                        Quản lý sản phẩm
+                    </submenu>
+
+                    <submenu id="sale_reporting_menu" name="Reporting">
+                        <menuitem id="menu_sale_report" name="Sales"
+                                  action="action_order_report_all">
+                            Báo cáo phân tích (sale.report model)
+                        </menuitem>
+                    </submenu>
+
+                    <submenu id="sale_config_menu" name="Configuration">
+                        Cài đặt: teams, pricelists, payment terms...
+                    </submenu>
+                </menu>
+            </menu_structure>
+
+            <why_important>
+                Tree view + Menu là điểm truy cập chính vào module Sale:
+                - Cho phép xem tổng quan tất cả đơn hàng
+                - Filter nhanh theo trạng thái, nhân viên, khách hàng
+                - Xử lý hàng loạt (mass actions)
+                - Xuất excel để báo cáo
+                - Navigate giữa các view mode (list/kanban/graph...)
+                
+                Menu structure tổ chức logic rõ ràng:
+                Sales → Orders → Quotations / Orders
+                       → Products
+                       → Reporting
+                       → Configuration
+            </why_important>
+        </view>
+
+        <!-- BONUS VIEW 3: sale.report pivot + graph -->
+        <view rank="3" importance="medium">
+            <type>pivot + graph</type>
+            <name>sale_report analytics views</name>
+            <model>sale.report</model>
+            <file>report/sale_report_views.xml</file>
+
+            <description>
+                Pivot table và Graph view để phân tích doanh số bán hàng theo nhiều chiều.
+                Dành cho manager và analyst.
+            </description>
+
+            <pivot_view>
+                <xml_id>sale.view_order_product_pivot</xml_id>
+                <default_groupby>
+                    <row>partner_id</row>
+                    <row>product_id</row>
+                    <col>date:month</col>
+                </default_groupby>
+                <measures>
+                    <measure>price_total</measure>
+                    <measure>product_uom_qty</measure>
+                    <measure>discount</measure>
+                </measures>
+                <features>
+                    Drag & drop để thay đổi dimension
+                    Drill down để xem chi tiết
+                    Export to Excel
+                </features>
+            </pivot_view>
+
+            <graph_view>
+                <xml_id>sale.view_order_product_graph</xml_id>
+                <types>
+                    <type>bar</type>
+                    <type>line</type>
+                    <type>pie</type>
+                </types>
+                <default_type>bar</default_type>
+                <default_groupby>categ_id</default_groupby>
+                <default_measure>price_total</default_measure>
+            </graph_view>
+
+            <use_cases>
+                <use_case>So sánh doanh số theo tháng/quý/năm</use_case>
+                <use_case>Top sản phẩm bán chạy nhất</use_case>
+                <use_case>Top khách hàng VIP</use_case>
+                <use_case>Hiệu suất nhân viên bán hàng</use_case>
+                <use_case>Phân tích xu hướng mua hàng</use_case>
+            </use_cases>
+        </view>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PHẦN 4: CONTROLLER & API -->
+    <!-- ============================================ -->
+    <section id="4">
+        <title>Có controller không? Nếu có thì mô tả API</title>
+
+        <answer>CÓ - Module Sale có controller quan trọng phục vụ Customer Portal</answer>
+
+        <controller>
+            <file>controllers/portal.py</file>
+            <class>CustomerPortal</class>
+            <inherit>payment_portal.PaymentPortal</inherit>
+            <purpose>
+                Xử lý các HTTP request từ Customer Portal - giao diện web cho khách hàng 
+                xem và tương tác với đơn hàng của mình mà không cần vào backend Odoo.
+            </purpose>
+
+            <!-- API 1 -->
+            <api id="1" importance="high">
+                <route>['/my/quotes', '/my/quotes/page/&lt;int:page&gt;']</route>
+                <method>GET</method>
+                <function>portal_my_quotes</function>
+                <auth>user</auth>
+                <type>http</type>
+                <website>true</website>
+
+                <description>
+                    API lấy danh sách báo giá của khách hàng đã đăng nhập.
+                    Chỉ hiển thị báo giá ở trạng thái 'sent' (đã gửi cho khách).
+                </description>
+
+                <parameters>
+                    <param name="page" type="int" default="1">Số trang (pagination)</param>
+                    <param name="date_begin" type="date" optional="true">Lọc từ ngày</param>
+                    <param name="date_end" type="date" optional="true">Lọc đến ngày</param>
+                    <param name="sortby" type="string" default="date">Sắp xếp (date/name/stage)</param>
+                </parameters>
+
+                <returns>
+                    <type>HTML page</type>
+                    <template>sale.portal_my_quotations</template>
+                    <data>
+                        <field>quotations: recordset of sale.order</field>
+                        <field>quotation_count: int</field>
+                        <field>pager: pagination data</field>
+                        <field>searchbar_sortings: dict</field>
+                    </data>
+                </returns>
+
+                <example>
+                    <url>https://yourcompany.odoo.com/my/quotes</url>
+                    <url>https://yourcompany.odoo.com/my/quotes/page/2?sortby=name</url>
+                </example>
+
+                <security>
+                    - auth="user": Yêu cầu khách hàng đăng nhập
+                    - Chỉ xem được báo giá của chính mình (filter by partner_id)
+                </security>
+            </api>
+
+            <!-- API 2 -->
+            <api id="2" importance="high">
+                <route>['/my/orders', '/my/orders/page/&lt;int:page&gt;']</route>
+                <method>GET</method>
+                <function>portal_my_orders</function>
+                <auth>user</auth>
+                <type>http</type>
+                <website>true</website>
+
+                <description>
+                    API lấy danh sách đơn hàng đã xác nhận của khách hàng.
+                    Chỉ hiển thị đơn hàng ở trạng thái 'sale' (đã xác nhận).
+                </description>
+
+                <parameters>
+                    <param name="page" type="int" default="1">Số trang</param>
+                    <param name="date_begin" type="date" optional="true">Lọc từ ngày</param>
+                    <param name="date_end" type="date" optional="true">Lọc đến ngày</param>
+                    <param name="sortby" type="string" default="date">Sắp xếp</param>
+                </parameters>
+
+                <returns>
+                    <type>HTML page</type>
+                    <template>sale.portal_my_orders</template>
+                    <data>
+                        <field>orders: recordset of sale.order</field>
+                        <field>order_count: int</field>
+                        <field>pager: pagination data</field>
+                    </data>
+                </returns>
+
+                <example>
+                    <url>https://yourcompany.odoo.com/my/orders</url>
+                </example>
+            </api>
+
+            <!-- API 3 -->
+            <api id="3" importance="critical">
+                <route>/my/orders/&lt;int:order_id&gt;</route>
+                <method>GET</method>
+                <function>portal_order_page</function>
+                <auth>public</auth>
+                <type>http</type>
+                <website>true</website>
+
+                <description>
+                    API xem chi tiết một đơn hàng cụ thể.
+                    Đây là API quan trọng nhất - cho phép khách xem, download PDF, 
+                    và thanh toán đơn hàng online.
+                </description>
+
+                <parameters>
+                    <param name="order_id" type="int" required="true">ID của đơn hàng</param>
+                    <param name="access_token" type="string" optional="true">
+                        Token bảo mật cho phép user chưa đăng nhập xem đơn.
+                        Token này được gửi kèm trong email báo giá.
+                    </param>
+                    <param name="report_type" type="string" optional="true">
+                        Loại export: 'html', 'pdf', 'text'.
+                        Nếu có thì trả về file download thay vì hiển thị trang.
+                    </param>
+                    <param name="download" type="bool" optional="true">
+                        Force download file thay vì hiển thị trong browser
+                    </param>
+                    <param name="message" type="string" optional="true">
+                        Message hiển thị (success/error notification)
+                    </param>
+                    <param name="downpayment" type="string" optional="true">
+                        'true' để thanh toán đặt cọc, 'false' để thanh toán toàn bộ
+                    </param>
+                </parameters>
+
+                <returns>
+                    <type>HTML page hoặc PDF file</type>
+                    <template>sale.sale_order_portal_template</template>
+                    <data>
+                        <field>sale_order: sale.order record</field>
+                        <field>product_documents: danh sách tài liệu kèm theo sản phẩm</field>
+                        <field>message: thông báo</field>
+                        <field>backend_url: link vào backend (cho internal user)</field>
+                        <field>res_company: công ty (để hiển thị logo)</field>
+                        <field>payment_providers: các cổng thanh toán available</field>
+                        <field>tokens: thẻ thanh toán đã lưu</field>
+                    </data>
+                </returns>
+
+                <examples>
+                    <example>
+                        <url>https://yourcompany.odoo.com/my/orders/123</url>
+                        <description>Xem đơn hàng #123 (cần login)</description>
+                    </example>
+                    <example>
+                        <url>https://yourcompany.odoo.com/my/orders/123?access_token=abc123xyz</url>
+                        <description>Xem đơn với token (không cần login)</description>
+                    </example>
+                    <example>
+                        <url>https://yourcompany.odoo.com/my/orders/123?report_type=pdf&amp;download=true</url>
+                        <description>Download PDF của đơn hàng</description>
+                    </example>
+                </examples>
+
+                <security>
+                    - auth="public": Cho phép truy cập không cần login (nếu có token)
+                    - _document_check_access(): Kiểm tra quyền truy cập
+                    - Nếu không có quyền → redirect về /my
+                </security>
+
+                <side_effects>
+                    <effect>Log "Quotation viewed by customer" vào chatter (1 lần/ngày)</effect>
+                    <effect>Lưu lịch sử xem vào session</effect>
+                </side_effects>
+            </api>
+
+            <!-- API 4 -->
+            <api id="4" importance="high">
+                <route>/my/orders/&lt;int:order_id&gt;/accept</route>
+                <method>POST</method>
+                <function>portal_quote_accept</function>
+                <auth>public</auth>
+                <type>json</type>
+                <website>true</website>
+
+                <description>
+                    API xác nhận báo giá online từ phía khách hàng.
+                    Chuyển state từ 'sent' → 'sale'.
+                </description>
+
+                <parameters>
+                    <param name="order_id" type="int" required="true">ID đơn hàng</param>
+                    <param name="access_token" type="string" optional="true">Token xác thực</param>
+                    <param name="name" type="string" optional="true">Tên người ký</param>
+                    <param name="signature" type="base64" optional="true">Chữ ký số (base64 image)</param>
+                </parameters>
+
+                <returns>
+                    <type>JSON</type>
+                    <success>
+                        {
+                            "force_refresh": true,
+                            "redirect_url": "/my/orders/123?message=confirmed"
+                        }
+                    </success>
+                    <error>
+                        {
+                            "error": "Order already confirmed"
+                        }
+                    </error>
+                </returns>
+
+                <example>
+                    <request>
+                        POST /my/orders/123/accept
+                        Content-Type: application/json
+                        {
+                            "access_token": "abc123",
+                            "name": "John Doe",
+                            "signature": "data:image/png;base64,iVBOR..."
+                        }
+                    </request>
+                    <response>
+                        {
+                            "force_refresh": true,
+                            "redirect_url": "/my/orders/123?message=confirmed"
+                        }
+                    </response>
+                </example>
+
+                <workflow>
+                    <step>1. Kiểm tra quyền truy cập (token hoặc login)</step>
+                    <step>2. Validate đơn hàng có thể xác nhận (state='sent')</step>
+                    <step>3. Lưu signature và signed_by nếu có</step>
+                    <step>4. Gọi order.action_confirm()</step>
+                    <step>5. Gửi email xác nhận cho khách và salesperson</step>
+                    <step>6. Return success JSON</step>
+                </workflow>
+            </api>
+
+            <!-- API 5 -->
+            <api id="5" importance="medium">
+                <route>/my/orders/&lt;int:order_id&gt;/decline</route>
+                <method>POST</method>
+                <function>portal_quote_decline</function>
+                <auth>public</auth>
+                <type>http</type>
+                <website>true</website>
+
+                <description>
+                    API từ chối báo giá từ phía khách hàng.
+                    Thêm message vào chatter giải thích lý do từ chối.
+                </description>
+
+                <parameters>
+                    <param name="order_id" type="int" required="true">ID đơn hàng</param>
+                    <param name="access_token" type="string" optional="true">Token</param>
+                    <param name="decline_message" type="text" optional="true">Lý do từ chối</param>
+                </parameters>
+
+                <returns>
+                    <type>HTTP Redirect</type>
+                    <redirect>/my/orders/{order_id}?message=declined</redirect>
+                </returns>
+            </api>
+
+            <!-- API 6 -->
+            <api id="6" importance="high">
+                <route>/my/orders/&lt;int:order_id&gt;/transaction</route>
+                <method>POST</method>
+                <function>portal_order_transaction</function>
+                <auth>public</auth>
+                <type>json</type>
+                <website>true</website>
+
+                <description>
+                    API tạo payment transaction để thanh toán đơn hàng online.
+                    Tích hợp với payment provider (Stripe, PayPal, Credit Card...).
+                </description>
+
+                <parameters>
+                    <param name="order_id" type="int" required="true">ID đơn hàng</param>
+                    <param name="access_token" type="string" optional="true">Token</param>
+                    <param name="payment_method_id" type="int" required="true">
+                        ID phương thức thanh toán
+                    </param>
+                    <param name="token_id" type="int" optional="true">
+                        ID thẻ đã lưu (saved card)
+                    </param>
+                    <param name="amount" type="float" optional="true">
+                        Số tiền thanh toán (mặc định = amount_total - amount_paid)
+                    </param>
+                </parameters>
+
+                <returns>
+                    <type>JSON</type>
+                    <data>
+                        {
+                            "transaction_id": 456,
+                            "payment_url": "https://payment-gateway.com/pay?ref=...",
+                            "3ds_required": true
+                        }
+                    </data>
+                </returns>
+
+                <workflow>
+                    <step>1. Validate payment method &amp; amount</step>
+                    <step>2. Tạo payment.transaction record</step>
+                    <step>3. Link transaction với sale.order</step>
+                    <step>4. Call payment provider API</step>
+                    <step>5. Return payment URL (nếu cần redirect)</step>
+                    <step>6. Webhook callback xử lý kết quả thanh toán</step>
+                </workflow>
+
+                <payment_providers>
+                    <provider>Stripe</provider>
+                    <provider>PayPal</provider>
+                    <provider>Authorize.net</provider>
+                    <provider>Adyen</provider>
+                    <provider>Local banks (VN: VNPay, MoMo...)</provider>
+                </payment_providers>
+            </api>
+
+            <!-- API 7 -->
+            <api id="7" importance="low">
+                <route>/my/orders/&lt;int:order_id&gt;/document/&lt;int:document_id&gt;</route>
+                <method>GET</method>
+                <function>portal_order_document</function>
+                <auth>public</auth>
+                <type>http</type>
+
+                <description>
+                    API download tài liệu kèm theo sản phẩm (datasheet, manual, certificate...).
+                </description>
+
+                <returns>
+                    <type>Binary file (PDF/DOC/Image)</type>
+                </returns>
+            </api>
+        </controller>
+
+        <!-- SUMMARY -->
+        <api_summary>
+            <total_routes>7+</total_routes>
+            <authentication>
+                <type>Session-based</type>
+                <type>Token-based (access_token)</type>
+            </authentication>
+            
+            <use_cases>
+                <use_case>Customer Portal - Khách xem đơn hàng của mình</use_case>
+                <use_case>Online Quotation Approval - Khách xác nhận báo giá online</use_case>
+                <use_case>Online Payment - Thanh toán trực tuyến</use_case>
+                <use_case>Digital Signature - Ký số xác nhận đơn hàng</use_case>
+                <use_case>Document Download - Tải tài liệu kèm theo</use_case>
+            </use_cases>
+
+            <technologies>
+                <tech>Odoo HTTP Framework</tech>
+                <tech>QWeb Templates</tech>
+                <tech>Payment Acquirer API Integration</tech>
+                <tech>JWT-like Access Tokens</tech>
+                <tech>Session Management</tech>
+            </technologies>
+
+            <security_features>
+                <feature>Access Token Validation</feature>
+                <feature>Partner-based Access Control</feature>
+                <feature>CSRF Protection</feature>
+                <feature>Rate Limiting</feature>
+                <feature>SQL Injection Prevention (ORM)</feature>
+            </security_features>
+        </api_summary>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- METADATA -->
+    <!-- ============================================ -->
+    <metadata>
+        <document_title>Phân tích Module Sale - Odoo 17</document_title>
+        <author>GitHub Copilot</author>
+        <created_date>2025-12-11</created_date>
+        <version>1.0</version>
+        <language>Tiếng Việt</language>
+        <format>XML Structured Documentation</format>
+    </metadata>
+</module_documentation>

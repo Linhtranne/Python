@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Form View -->
+    <record id="view_student_form_score" model="ir.ui.view">
+        <field name="name">student.management.form.score</field>
+        <field name="model">student.management</field>
+        <field name="inherit_id" ref="student_management.view_student_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Add button in header -->
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <button name="action_calculate_average" 
+                            string="Calculate Average" 
+                            type="object" 
+                            class="btn-primary"/>
+                </header>
+            </xpath>
+
+            <!-- Add score fields after existing fields -->
+            <xpath expr="//field[@name='is_active']" position="after">
+                <field name="score_math"/>
+                <field name="score_english"/>
+                <field name="score_average" readonly="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Inherit Tree View -->
+    <record id="view_student_tree_score" model="ir.ui.view">
+        <field name="name">student.management.tree.score</field>
+        <field name="model">student.management</field>
+        <field name="inherit_id" ref="student_management.view_student_tree"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='is_active']" position="after">
+                <field name="score_average"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Revenue Tree View -->
+    <record id="view_revenue_tree" model="ir.ui.view">
+        <field name="name">estate.revenue.tree</field>
+        <field name="model">estate.revenue</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="date"/>
+                <field name="category"/>
+                <field name="description"/>
+                <field name="amount" sum="Total Revenue"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Revenue Form View -->
+    <record id="view_revenue_form" model="ir.ui.view">
+        <field name="name">estate.revenue.form</field>
+        <field name="model">estate.revenue</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="category"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Revenue Search View -->
+    <record id="view_revenue_search" model="ir.ui.view">
+        <field name="name">estate.revenue.search</field>
+        <field name="model">estate.revenue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="description"/>
+                <field name="date"/>
+                <filter string="This Month" name="this_month" 
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('date', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Year" name="this_year" 
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(month=1, day=1)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Revenue Action -->
+    <record id="action_revenue" model="ir.actions.act_window">
+        <field name="name">Revenue</field>
+        <field name="res_model">estate.revenue</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Revenue Record
+            </p>
+            <p>
+                Track revenue from property sales, rentals, and services.
+            </p>
+        </field>
+    </record>
+
+</odoo>
