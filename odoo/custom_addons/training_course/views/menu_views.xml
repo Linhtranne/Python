@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Root Menu -->
+    <menuitem id="menu_training_root"
+              name="Training"
+              sequence="10"/>
+
+    <!-- Training Course Menu -->
+    <menuitem id="menu_training_course"
+              name="Courses"
+              parent="menu_training_root"
+              action="action_training_course"
+              sequence="10"/>
+
+    <!-- School Student Menu -->
+    <menuitem id="menu_school_student"
+              name="Students"
+              parent="menu_training_root"
+              action="action_school_student"
+              sequence="20"/>
+
+    <!-- Inventory Product Menu -->
+    <menuitem id="menu_inventory_product"
+              name="Products"
+              parent="menu_training_root"
+              action="action_inventory_product"
+              sequence="30"/>
+
+</odoo>

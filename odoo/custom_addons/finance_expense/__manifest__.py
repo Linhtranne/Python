@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Estate Management",
-    'summary': """Customer and Property Management System""",
+    'name': "finance_expense",
     'description': """
         Estate Management Module
         - Manage Customers and their Properties
@@ -10,19 +9,17 @@
     """,
     'author': "Odoo Developer",
     'website': "https://www.odoo.com",
-    'category': 'Real Estate',
+    'category': 'Finance',
     'version': '17.0.1.0.0',
     'depends': ['base'],
     'data': [
-        # 'views/customer_views.xml',
-        # 'views/estate_property_views.xml',
-        # 'views/revenue_views.xml',
-        # 'views/menu_views.xml',
-        'security/estate_security.xml',
+        'security/finance_groups.xml',
         'security/ir.model.access.csv',
-        'security/estate_record_rules.xml'
+        'security/finance_rules.xml'
     ],
     'installable': True,
     'application': True,
     'auto_install': False,
+    'lisense': 'LGPL-3',
 }
+

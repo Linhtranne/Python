@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="finance_expense_rule_manager" model="ir.rule">
+            <field name="name">Finance Expense Manager Rule</field>
+            <field name="model_id" ref="model_finance_expense"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('finance_expense.group_finance_manager'))]"/>
+        </record>
+        <record id="finance_expense_rule_employee" model="ir.rule">
+            <field name="name">Finance Expense Employee Rule</field>
+            <field name="model_id" ref="model_finance_expense"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('finance_expense.group_finance_employee'))]"/>
+        </record>
+        <record id="finance_expense_rule_auditor" model="ir.rule">
+            <field name="name">Finance Expense Auditor Rule</field>
+            <field name="model_id" ref="model_finance_expense"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('finance_expense.group_finance_auditor'))]"/>
+        </record>
+    </data>
+
+</odoo>

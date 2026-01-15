@@ -1,0 +1,158 @@
+
+        =============================================================================
+        MODEL MÔ TẢ: school.student
+        =============================================================================
+        
+        1. THÔNG TIN CHUNG
+        ─────────────────────────────────────────────────────────────────────────────
+        Model Name:          school.student
+        Description:         School Student Management
+        Python Class:        SchoolStudent
+        File Location:       models/student.py
+        Technical Name:      school.student
+        Display Name Field:  name (_rec_name = 'name')
+        
+        
+        2. CẤU TRÚC TRƯỜNG DỮ LIỆU
+        ─────────────────────────────────────────────────────────────────────────────
+        
+        Field Name      | Type      | Required | Default    | Description
+        ─────────────────────────────────────────────────────────────────────────────
+        name            | Char      | Yes      | -          | Full name of student
+        age             | Integer   | No       | -          | Student age
+        bio             | Text      | No       | -          | Biography and info
+        is_active       | Boolean   | No       | True       | Active status
+        
+        
+        3. ĐỊNH NGHĨA CHI TIẾT CÁC TRƯỜNG
+        ─────────────────────────────────────────────────────────────────────────────
+        
+        3.1. name (Char)
+        ─────────────────
+        - Type:          fields.Char
+        - String:        'Student Name'
+        - Required:      True
+        - Help Text:     'Full name of the student'
+        - Purpose:       Lưu tên đầy đủ của học sinh
+        - Validation:    Bắt buộc phải nhập
+        - Example:       "Nguyễn Văn A", "Trần Thị B"
+        
+        3.2. age (Integer)
+        ──────────────────
+        - Type:          fields.Integer
+        - String:        'Age'
+        - Required:      False
+        - Help Text:     'Student age'
+        - Purpose:       Lưu tuổi của học sinh
+        - Range:         Typically 5-25 for students
+        - Example:       15, 18, 20
+        
+        3.3. bio (Text)
+        ───────────────
+        - Type:          fields.Text
+        - String:        'Biography'
+        - Required:      False
+        - Help Text:     'Student biography and additional information'
+        - Purpose:       Lưu tiểu sử, thông tin bổ sung về học sinh
+        - Usage:         Có thể chứa nhiều dòng text
+        - Example:       "Học sinh năng động, tích cực tham gia các hoạt động..."
+        
+        3.4. is_active (Boolean)
+        ─────────────────────────
+        - Type:          fields.Boolean
+        - String:        'Active'
+        - Required:      False
+        - Default:       True
+        - Help Text:     'Set to False to archive the student'
+        - Purpose:       Đánh dấu trạng thái hoạt động của học sinh
+        - Usage:         True = đang học, False = đã nghỉ/lưu trữ
+        
+        
+        4. VIEWS CONFIGURATION
+        ─────────────────────────────────────────────────────────────────────────────
+        
+        4.1. Tree View (view_school_student_tree)
+        ──────────────────────────────────────────
+        - ID:            view_school_student_tree
+        - Display Fields: name, age, is_active
+        - Purpose:       Hiển thị danh sách học sinh dạng bảng
+        
+        4.2. Form View (view_school_student_form)
+        ──────────────────────────────────────────
+        - ID:            view_school_student_form
+        - Layout:        
+          * Group 1: name, age
+          * Group 2: is_active
+          * Separate group: bio (with placeholder)
+        - Purpose:       Form nhập/sửa thông tin học sinh
+        
+        
+        5. MENU STRUCTURE
+        ─────────────────────────────────────────────────────────────────────────────
+        Training (Root Menu)
+        └── Students (menu_school_student)
+            └── Action: action_school_student
+        
+        
+        6. SECURITY & ACCESS RIGHTS
+        ─────────────────────────────────────────────────────────────────────────────
+        Access ID:       access_school_student
+        Model:           model_school_student
+        Group:           base.group_user
+        Permissions:     Read, Write, Create, Delete (1,1,1,1)
+        
+        
+        7. USAGE EXAMPLES
+        ─────────────────────────────────────────────────────────────────────────────
+        
+        7.1. Create Student (Python)
+        ─────────────────────────────
+        student = self.env['school.student'].create({
+            'name': 'Nguyễn Văn A',
+            'age': 18,
+            'bio': 'Học sinh giỏi, tích cực',
+            'is_active': True,
+        })
+        
+        7.2. Search Students
+        ────────────────────
+        # Tìm tất cả học sinh đang hoạt động
+        active_students = self.env['school.student'].search([
+            ('is_active', '=', True)
+        ])
+        
+        # Tìm học sinh theo tên
+        student = self.env['school.student'].search([
+            ('name', 'ilike', 'Nguyễn')
+        ], limit=1)
+        
+        7.3. Update Student
+        ───────────────────
+        student.write({
+            'age': 19,
+            'bio': 'Updated biography'
+        })
+        
+        7.4. Archive Student
+        ────────────────────
+        student.write({'is_active': False})
+        
+        
+        8. BEST PRACTICES
+        ─────────────────────────────────────────────────────────────────────────────
+        - Luôn validate age nếu cần (có thể thêm @api.constrains)
+        - Sử dụng is_active để archive thay vì xóa
+        - Bio field phù hợp cho text dài, có thể thêm validation độ dài
+        - Có thể mở rộng thêm: email, phone, address, class_id, etc.
+        
+        
+        9. POTENTIAL ENHANCEMENTS
+        ─────────────────────────────────────────────────────────────────────────────
+        - Thêm email, phone fields
+        - Thêm relationship với training.course (Many2many)
+        - Thêm computed field: full_info
+        - Thêm constraints: age >= 0, unique email
+        - Thêm search view với filters và group by
+        - Thêm avatar image field
+        
+        =============================================================================

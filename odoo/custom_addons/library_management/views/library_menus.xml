@@ -1,0 +1,19 @@
+<odoo>
+    <!-- Actions -->
+    <record id="action_library_book" model="ir.actions.act_window">
+        <field name="name">Tất cả đầu sách</field>
+        <field name="res_model">library.book</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help">Quản lý các đầu sách trong thư viện</field>
+    </record>
+
+    <!-- Main Menu -->
+    <menuitem id="menu_library_root" name="Thư viện" sequence="10"/>
+
+    <!-- Sub Menu -->
+    <menuitem id="menu_library_management" name="Quản lý Sách" parent="menu_library_root" sequence="1"/>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_library_book" name="Tất cả đầu sách" parent="menu_library_management"
+              action="library_management.action_library_book" sequence="1"/>
+</odoo>
