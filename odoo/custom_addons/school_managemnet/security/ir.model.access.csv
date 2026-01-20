@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_school_management,access.school.management,model_school_management,base.group_user,1,1,1,1
-access_student_management,access.student.management,model_student_management,base.group_user,1,1,1,1
-access_exam_management,access.exam.management,model_exam_management,base.group_user,1,1,1,1

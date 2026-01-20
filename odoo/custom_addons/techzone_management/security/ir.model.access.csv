@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_repair_device_user,repair.device.user,model_repair_device,base.group_user,1,1,1,1
+access_repair_brand_user,repair.brand.user,model_repair_brand,base.group_user,1,1,1,1
+access_repair_model_user,repair.model.user,model_repair_model,base.group_user,1,1,1,1
+access_repair_order_user,repair.order.user,model_repair_order,base.group_user,1,1,1,0
+access_repair_line_user,repair.line.user,model_repair_line,base.group_user,1,1,1,1
+access_repair_history_user,repair.history.user,model_repair_history,base.group_user,1,1,1,1
+access_repair_diagnosis_user,repair.diagnosis.user,model_repair_diagnosis,base.group_user,1,1,1,1
+access_repair_appointment_user,repair.appointment.user,model_repair_appointment,base.group_user,1,1,1,1
+access_repair_order_manager,repair.order.manager,model_repair_order,group_repair_manager,1,1,1,1
+access_repair_order_technician,repair.order.technician,model_repair_order,group_repair_technician,1,1,1,0

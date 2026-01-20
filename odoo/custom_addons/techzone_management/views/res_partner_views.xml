@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Partner Form View -->
+    <record id="view_partner_form_inherit_repair" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.repair</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Thiết bị sở hữu" name="devices">
+                    <field name="device_ids" nolabel="1">
+                        <tree>
+                            <field name="name"/>
+                            <field name="brand_id"/>
+                            <field name="model_id"/>
+                            <field name="warranty_status"/>
+                            <field name="last_repair_date"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_repair_device)d" type="action" 
+                        context="{'search_default_owner_id': active_id}"
+                        class="oe_stat_button" icon="fa-mobile">
+                    <field name="device_count" widget="statinfo" string="Thiết bị"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

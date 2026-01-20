@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu chính -->
+    <menuitem id="menu_repair_root"
+              name="Trung tâm Sửa chữa"
+              sequence="10"
+              web_icon="techzone_management,static/description/icon.png"/>
+
+    <!-- Menu Phiếu sửa chữa -->
+    <menuitem id="menu_repair_order"
+              name="Phiếu sửa chữa"
+              parent="menu_repair_root"
+              action="action_repair_order"
+              sequence="10"/>
+
+    <!-- Menu Thiết bị -->
+    <menuitem id="menu_repair_device"
+              name="Thiết bị"
+              parent="menu_repair_root"
+              action="action_repair_device"
+              sequence="20"/>
+
+    <!-- Menu Lịch hẹn -->
+    <menuitem id="menu_repair_appointment"
+              name="Lịch hẹn"
+              parent="menu_repair_root"
+              action="action_repair_appointment"
+              sequence="30"/>
+
+    <!-- Menu Cấu hình -->
+    <menuitem id="menu_repair_config"
+              name="Cấu hình"
+              parent="menu_repair_root"
+              sequence="90"/>
+
+    <!-- Menu Hãng & Model -->
+    <menuitem id="menu_repair_brand"
+              name="Hãng sản xuất"
+              parent="menu_repair_config"
+              action="action_repair_brand"
+              sequence="10"/>
+
+    <menuitem id="menu_repair_model"
+              name="Dòng máy"
+              parent="menu_repair_config"
+              action="action_repair_model"
+              sequence="20"/>
+
+    <!-- Menu Báo cáo -->
+    <menuitem id="menu_repair_report"
+              name="Báo cáo"
+              parent="menu_repair_root"
+              sequence="100"/>
+
+</odoo>

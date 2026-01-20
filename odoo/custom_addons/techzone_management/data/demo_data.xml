@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Demo Brands -->
+    <record id="demo_brand_apple" model="repair.brand">
+        <field name="name">Apple</field>
+    </record>
+
+    <record id="demo_brand_samsung" model="repair.brand">
+        <field name="name">Samsung</field>
+    </record>
+
+    <record id="demo_brand_dell" model="repair.brand">
+        <field name="name">Dell</field>
+    </record>
+
+    <!-- Demo Models -->
+    <record id="demo_model_iphone13" model="repair.model">
+        <field name="name">iPhone 13</field>
+        <field name="brand_id" ref="demo_brand_apple"/>
+        <field name="release_year">2021</field>
+    </record>
+
+    <record id="demo_model_galaxy_s24" model="repair.model">
+        <field name="name">Galaxy S24</field>
+        <field name="brand_id" ref="demo_brand_samsung"/>
+        <field name="release_year">2024</field>
+    </record>
+
+    <record id="demo_model_dell_xps" model="repair.model">
+        <field name="name">Dell XPS 13</field>
+        <field name="brand_id" ref="demo_brand_dell"/>
+        <field name="release_year">2023</field>
+    </record>
+
+    <!-- Demo Partners -->
+    <record id="demo_partner_1" model="res.partner">
+        <field name="name">Nguyễn Văn A</field>
+        <field name="phone">0901234567</field>
+        <field name="email">nguyenvana@example.com</field>
+    </record>
+
+    <record id="demo_partner_2" model="res.partner">
+        <field name="name">Trần Thị B</field>
+        <field name="phone">0907654321</field>
+        <field name="email">tranthib@example.com</field>
+    </record>
+
+    <!-- Demo Devices -->
+    <record id="demo_device_1" model="repair.device">
+        <field name="name">IMEI123456789</field>
+        <field name="serial_number">SN123456</field>
+        <field name="owner_id" ref="demo_partner_1"/>
+        <field name="brand_id" ref="demo_brand_apple"/>
+        <field name="model_id" ref="demo_model_iphone13"/>
+            <field name="purchase_date" eval="(datetime.now() - timedelta(days=200)).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="demo_device_2" model="repair.device">
+        <field name="name">IMEI987654321</field>
+        <field name="serial_number">SN987654</field>
+        <field name="owner_id" ref="demo_partner_2"/>
+        <field name="brand_id" ref="demo_brand_samsung"/>
+        <field name="model_id" ref="demo_model_galaxy_s24"/>
+        <field name="purchase_date" eval="(datetime.datetime.now() - datetime.timedelta(days=400)).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <!-- Demo Products (Repair Parts) -->
+    <record id="demo_product_screen" model="product.template">
+        <field name="name">Màn hình iPhone 13</field>
+        <field name="type">product</field>
+        <field name="is_repair_part">True</field>
+        <field name="list_price">2000000</field>
+        <field name="standard_price">1500000</field>
+    </record>
+
+    <record id="demo_product_battery" model="product.template">
+        <field name="name">Pin iPhone 13</field>
+        <field name="type">product</field>
+        <field name="is_repair_part">True</field>
+        <field name="list_price">500000</field>
+        <field name="standard_price">300000</field>
+    </record>
+
+    <record id="demo_product_service" model="product.template">
+        <field name="name">Công sửa chữa</field>
+        <field name="type">service</field>
+        <field name="is_repair_part">True</field>
+        <field name="list_price">500000</field>
+    </record>
+
+</odoo>

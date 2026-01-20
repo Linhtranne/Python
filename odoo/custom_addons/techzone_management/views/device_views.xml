@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Device Tree View -->
+    <record id="view_repair_device_tree" model="ir.ui.view">
+        <field name="name">repair.device.tree</field>
+        <field name="model">repair.device</field>
+        <field name="arch" type="xml">
+            <tree string="Thiết bị">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="brand_id"/>
+                <field name="model_id"/>
+                <field name="warranty_status"/>
+                <field name="repair_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Device Form View -->
+    <record id="view_repair_device_form" model="ir.ui.view">
+        <field name="name">repair.device.form</field>
+        <field name="model">repair.device</field>
+        <field name="arch" type="xml">
+            <form string="Thiết bị">
+                <header>
+                    <button name="%(action_repair_order)d" type="action" 
+                            string="Lịch sử Sửa chữa" 
+                            context="{'default_device_id': id, 'search_default_device_id': id}"
+                            class="oe_stat_button" icon="fa-wrench">
+                        <field name="repair_count" widget="statinfo" string="Sửa chữa"/>
+                    </button>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_repair_order)d" type="action" 
+                                context="{'default_device_id': id, 'search_default_device_id': id}"
+                                class="oe_stat_button" icon="fa-wrench">
+                            <field name="repair_count" widget="statinfo" string="Sửa chữa"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="Số Serial/IMEI"/>
+                            <field name="serial_number"/>
+                            <field name="image" widget="image" class="oe_avatar"/>
+                        </group>
+                        <group>
+                            <field name="brand_id"/>
+                            <field name="model_id"/>
+                            <field name="purchase_date"/>
+                            <field name="warranty_status"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Thông tin chung">
+                            <group>
+                                <group string="Chủ sở hữu">
+                                    <field name="owner_id"/>
+                                    <field name="owner_phone"/>
+                                </group>
+                                <group string="Thông tin kỹ thuật">
+                                    <field name="model_name"/>
+                                    <field name="last_repair_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Lịch sử lỗi">
+                            <field name="history_ids">
+                                <tree>
+                                    <field name="date_log"/>
+                                    <field name="issue_description"/>
+                                    <field name="diagnosis_result"/>
+                                    <field name="technician_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Device Kanban View -->
+    <record id="view_repair_device_kanban" model="ir.ui.view">
+        <field name="name">repair.device.kanban</field>
+        <field name="model">repair.device</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="brand_id" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="image"/>
+                <field name="brand_id"/>
+                <field name="owner_id"/>
+                <field name="warranty_status"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_image">
+                                <img t-att-src="kanban_image('repair.device', 'image', record.id.raw_value)" 
+                                     alt="Device Image"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="o_kanban_record_subtitle">
+                                    <field name="owner_id"/>
+                                </div>
+                                <div>
+                                    <field name="warranty_status"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Device Search View -->
+    <record id="view_repair_device_search" model="ir.ui.view">
+        <field name="name">repair.device.search</field>
+        <field name="model">repair.device</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm Thiết bị">
+                <field name="name" string="Serial/IMEI"/>
+                <field name="owner_id" string="Chủ sở hữu"/>
+                <field name="model_id" string="Dòng máy"/>
+                <field name="brand_id" string="Hãng"/>
+                <filter string="Hết bảo hành" name="expired_warranty" 
+                        domain="[('warranty_status', '=', 'expired')]"/>
+                <filter string="Còn bảo hành" name="warranty" 
+                        domain="[('warranty_status', '=', 'warranty')]"/>
+                <group expand="0" string="Nhóm theo">
+                    <filter string="Hãng" name="group_brand" context="{'group_by': 'brand_id'}"/>
+                    <filter string="Chủ sở hữu" name="group_owner" context="{'group_by': 'owner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Device Action -->
+    <record id="action_repair_device" model="ir.actions.act_window">
+        <field name="name">Thiết bị</field>
+        <field name="res_model">repair.device</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="view_repair_device_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tạo thiết bị mới
+            </p>
+        </field>
+    </record>
+
+    <!-- Brand Views -->
+    <record id="view_repair_brand_tree" model="ir.ui.view">
+        <field name="name">repair.brand.tree</field>
+        <field name="model">repair.brand</field>
+        <field name="arch" type="xml">
+            <tree string="Hãng sản xuất">
+                <field name="name"/>
+                <field name="icon" widget="image"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_repair_brand_form" model="ir.ui.view">
+        <field name="name">repair.brand.form</field>
+        <field name="model">repair.brand</field>
+        <field name="arch" type="xml">
+            <form string="Hãng sản xuất">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="icon" widget="image"/>
+                    </group>
+                    <notebook>
+                        <page string="Danh sách dòng máy">
+                            <field name="model_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="release_year"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_repair_brand" model="ir.actions.act_window">
+        <field name="name">Hãng sản xuất</field>
+        <field name="res_model">repair.brand</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Model Views -->
+    <record id="view_repair_model_tree" model="ir.ui.view">
+        <field name="name">repair.model.tree</field>
+        <field name="model">repair.model</field>
+        <field name="arch" type="xml">
+            <tree string="Dòng máy">
+                <field name="name"/>
+                <field name="brand_id"/>
+                <field name="release_year"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_repair_model_form" model="ir.ui.view">
+        <field name="name">repair.model.form</field>
+        <field name="model">repair.model</field>
+        <field name="arch" type="xml">
+            <form string="Dòng máy">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="brand_id"/>
+                        <field name="release_year"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_repair_model" model="ir.actions.act_window">
+        <field name="name">Dòng máy</field>
+        <field name="res_model">repair.model</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>
