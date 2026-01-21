@@ -52,7 +52,7 @@
         <field name="owner_id" ref="demo_partner_1"/>
         <field name="brand_id" ref="demo_brand_apple"/>
         <field name="model_id" ref="demo_model_iphone13"/>
-            <field name="purchase_date" eval="(datetime.now() - timedelta(days=200)).strftime('%Y-%m-%d')"/>
+        <field name="purchase_date">2025-07-01</field>
     </record>
 
     <record id="demo_device_2" model="repair.device">
@@ -61,7 +61,7 @@
         <field name="owner_id" ref="demo_partner_2"/>
         <field name="brand_id" ref="demo_brand_samsung"/>
         <field name="model_id" ref="demo_model_galaxy_s24"/>
-        <field name="purchase_date" eval="(datetime.datetime.now() - datetime.timedelta(days=400)).strftime('%Y-%m-%d')"/>
+        <field name="purchase_date">2024-12-01</field>
     </record>
 
     <!-- Demo Products (Repair Parts) -->

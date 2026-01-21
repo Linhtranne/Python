@@ -25,13 +25,17 @@
         'security/repair_security.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
-            'views/repair_order_views.xml',
-            'views/device_views.xml',
-            'views/repair_appointment_views.xml',
-            'views/menus.xml',
+        'views/repair_line_form.xml',
+        'views/repair_order_form.xml',
+        'views/repair_order_views.xml',
+        'views/device_views.xml',
+        'views/repair_appointment_views.xml',
         'views/repair_history_views.xml',
         'views/res_partner_views.xml',
         'views/product_views.xml',
+        'views/repair_diagnosis_views.xml',
+        'views/repair_order_calendar_views.xml',
+        'views/menus.xml',
     ],
     
     # only loaded in demonstration mode
@@ -42,5 +46,11 @@
     'installable': True,
     'application': True,
     'auto_install': False,
+
+    'assets': {
+        'web.assets_backend': [
+            'techzone_management/static/src/scss/techzone_backend.scss',
+        ],
+    },
 }
 

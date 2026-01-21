@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Repair Order form with workflow buttons, readonly-by-state, and role-based technician assignment -->
+    <record id="view_repair_order_form" model="ir.ui.view">
+        <field name="name">repair.order.form</field>
+        <field name="model">repair.order</field>
+        <field name="arch" type="xml">
+            <form string="Phiếu sửa chữa">
+                <header>
+                    <button name="action_diagnose" string="Kiểm tra" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_quote" string="Báo giá" type="object" class="oe_highlight" invisible="state != 'diagnose'"/>
+                    <button name="action_start" string="Bắt đầu sửa" type="object" class="oe_highlight" invisible="state != 'quoted'"/>
+                    <button name="action_done" string="Hoàn thành" type="object" class="oe_highlight" invisible="state != 'in_progress'"/>
+                    <button name="action_return" string="Trả máy" type="object" class="oe_highlight" invisible="state != 'done'"/>
+                    <button name="action_cancel" string="Hủy" type="object" class="btn-secondary" invisible="state not in ('draft','diagnose')"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,diagnose,quoted,in_progress,done,returned,cancel"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state in ('done','returned','cancel')"/>
+                            <field name="device_id" readonly="state in ('done','returned','cancel')"/>
+
+                            <field name="technician_id" groups="techzone_management.group_repair_technician" readonly="1"/>
+                            <field name="technician_id" groups="techzone_management.group_repair_manager" readonly="state in ('done','returned','cancel')"/>
+                        </group>
+                        <group>
+                            <field name="date_receipt" readonly="state in ('done','returned','cancel')"/>
+                            <field name="deadline" readonly="state in ('done','returned','cancel')"/>
+                            <field name="amount_total" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Chi tiết vật tư/công">
+                            <field name="line_ids" widget="section_and_note_one2many" nolabel="1"
+                                   context="{'default_order_id': id}"
+                                   form_view_ref="techzone_management.view_repair_line_form_custom"
+                                   readonly="state in ('done','returned','cancel')">
+                                <tree editable="bottom">
+                                    <field name="display_type" invisible="1"/>
+                                    <field name="product_id" readonly="display_type != 'line'"/>
+                                    <field name="product_uom_qty" readonly="display_type != 'line'"/>
+                                    <field name="price_unit" readonly="display_type != 'line'"/>
+                                    <field name="price_subtotal" readonly="display_type != 'line'"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

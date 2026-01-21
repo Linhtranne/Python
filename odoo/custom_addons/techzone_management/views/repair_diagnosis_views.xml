@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_repair_diagnosis_tree" model="ir.ui.view">
+        <field name="name">repair.diagnosis.tree</field>
+        <field name="model">repair.diagnosis</field>
+        <field name="arch" type="xml">
+            <tree string="Danh sách kiểm tra">
+                <field name="name"/>
+                <field name="is_active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_repair_diagnosis_form" model="ir.ui.view">
+        <field name="name">repair.diagnosis.form</field>
+        <field name="model">repair.diagnosis</field>
+        <field name="arch" type="xml">
+            <form string="Danh sách kiểm tra">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="is_active"/>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Mô tả..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_repair_diagnosis" model="ir.actions.act_window">
+        <field name="name">Checklist</field>
+        <field name="res_model">repair.diagnosis</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

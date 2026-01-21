@@ -60,4 +60,4 @@ class RepairAppointment(models.Model):
         """Tạo mã lịch hẹn tự động"""
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('repair.appointment') or 'New'
-        return super(RepairAppointment, self).create(vals)
+        return super().create(vals)

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Repair Order Calendar View for Deadlines -->
+    <record id="view_repair_order_calendar" model="ir.ui.view">
+        <field name="name">repair.order.calendar</field>
+        <field name="model">repair.order</field>
+        <field name="arch" type="xml">
+            <calendar string="Lịch trả máy" date_start="deadline" color="technician_id" mode="month">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="device_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action for Repair Order Deadline Calendar -->
+    <record id="action_repair_order_deadline_calendar" model="ir.actions.act_window">
+        <field name="name">Lịch trả máy</field>
+        <field name="res_model">repair.order</field>
+        <field name="view_mode">calendar,tree,form</field>
+        <field name="view_id" ref="view_repair_order_calendar"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Không có phiếu sửa chữa nào có hạn trả.
+            </p>
+        </field>
+    </record>
+</odoo>

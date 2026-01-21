@@ -11,15 +11,17 @@ class RepairDevice(models.Model):
     _order = 'name'
 
     name = fields.Char(
-        string='Số Serial/IMEI',
+        string='Mã thiết bị',
         required=True,
-        tracking=True,
-        help='Số serial hoặc IMEI của thiết bị'
+        copy=False,
+        readonly=True,
+        default='New'
     )
     
     serial_number = fields.Char(
-        string='Số Serial',
-        help='Số serial của thiết bị'
+        string='IMEI/Serial',
+        required=True,
+        help='IMEI hoặc số serial của thiết bị (duy nhất)'
     )
     
     image = fields.Binary(
@@ -59,8 +61,7 @@ class RepairDevice(models.Model):
     owner_phone = fields.Char(
         string='Số điện thoại',
         related='owner_id.phone',
-        readonly=True,
-        store=True
+        readonly=True
     )
     
     brand_id = fields.Many2one(
@@ -92,6 +93,12 @@ class RepairDevice(models.Model):
         string='Ngày sửa gần nhất',
         compute='_compute_last_repair_date',
         store=True
+    )
+
+    repair_order_ids = fields.One2many(
+        comodel_name='repair.order',
+        inverse_name='device_id',
+        string='Phiếu sửa chữa'
     )
 
     @api.depends('purchase_date')
@@ -128,12 +135,12 @@ class RepairDevice(models.Model):
             else:
                 record.last_repair_date = False
 
-    @api.onchange('owner_id')
-    def _onchange_owner_id(self):
-        """Tự động điền số điện thoại khi chọn chủ sở hữu"""
-        if self.owner_id and self.owner_id.phone:
-            self.owner_phone = self.owner_id.phone
+    @api.model
+    def create(self, vals):
+        if vals.get('name', 'New') == 'New':
+            vals['name'] = self.env['ir.sequence'].next_by_code('repair.device') or 'New'
+        return super().create(vals)
 
     _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Số Serial/IMEI phải là duy nhất!'),
+        ('serial_number_unique', 'UNIQUE(serial_number)', 'IMEI/Serial phải là duy nhất!'),
     ]

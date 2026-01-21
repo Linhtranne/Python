@@ -28,6 +28,7 @@ class RepairOrder(models.Model):
             ('in_progress', 'Đang sửa'),
             ('done', 'Hoàn thành'),
             ('returned', 'Trả máy'),
+            ('cancel', 'Đã hủy'),
         ],
         default='draft',
         tracking=True,
@@ -88,6 +89,15 @@ class RepairOrder(models.Model):
         string='Chi tiết vật tư/công'
     )
 
+    brand_id = fields.Many2one(
+        related='device_id.brand_id',
+        string='Hãng sản xuất',
+        store=True,
+        readonly=True
+    )
+
+
+
     @api.depends('line_ids.price_subtotal')
     def _compute_amount_total(self):
         """Tính tổng tiền từ các dòng chi tiết"""
@@ -99,7 +109,11 @@ class RepairOrder(models.Model):
         """Tạo mã phiếu tự động"""
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('repair.order') or 'New'
-        return super(RepairOrder, self).create(vals)
+        return super().create(vals)
+
+    def action_diagnose(self):
+        """Chuyển sang trạng thái Kiểm tra"""
+        self.write({'state': 'diagnose'})
 
     def action_quote(self):
         """Chuyển sang trạng thái Báo giá"""
@@ -187,11 +201,27 @@ class RepairLine(models.Model):
         readonly=True
     )
 
-    @api.depends('product_uom_qty', 'price_unit')
+    display_type = fields.Selection(
+        selection=[('line', 'Line'), ('section', 'Section'), ('note', 'Note')],
+        default='line',
+        string='Loại dòng',
+        help='Section/Note dùng cho mục tiêu hiển thị, không tính vào tổng tiền'
+    )
+
+    is_repair_part = fields.Boolean(
+        related='product_id.product_tmpl_id.is_repair_part',
+        string="Is a Repair Part",
+        store=True
+    )
+
+    @api.depends('product_uom_qty', 'price_unit', 'display_type')
     def _compute_subtotal(self):
-        """Tính thành tiền = số lượng * đơn giá"""
+        """Tính thành tiền = số lượng * đơn giá (chỉ tính dòng type 'line')"""
         for record in self:
-            record.price_subtotal = record.product_uom_qty * record.price_unit
+            if record.display_type == 'line':
+                record.price_subtotal = record.product_uom_qty * record.price_unit
+            else:
+                record.price_subtotal = 0
 
     @api.onchange('product_id')
     def _onchange_product_id(self):

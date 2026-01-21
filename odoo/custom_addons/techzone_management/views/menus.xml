@@ -4,28 +4,34 @@
     <menuitem id="menu_repair_root"
               name="Trung tâm Sửa chữa"
               sequence="10"
-              web_icon="techzone_management,static/description/icon.png"/>
+/>
 
     <!-- Menu Phiếu sửa chữa -->
     <menuitem id="menu_repair_order"
               name="Phiếu sửa chữa"
               parent="menu_repair_root"
-              action="action_repair_order"
+              action="techzone_management.action_repair_order"
               sequence="10"/>
 
     <!-- Menu Thiết bị -->
     <menuitem id="menu_repair_device"
               name="Thiết bị"
               parent="menu_repair_root"
-              action="action_repair_device"
+              action="techzone_management.action_repair_device"
               sequence="20"/>
 
     <!-- Menu Lịch hẹn -->
     <menuitem id="menu_repair_appointment"
               name="Lịch hẹn"
               parent="menu_repair_root"
-              action="action_repair_appointment"
+              action="techzone_management.action_repair_appointment"
               sequence="30"/>
+
+    <menuitem id="menu_repair_deadline_calendar"
+              name="Lịch trả máy"
+              parent="menu_repair_root"
+              action="techzone_management.action_repair_order_deadline_calendar"
+              sequence="40"/>
 
     <!-- Menu Cấu hình -->
     <menuitem id="menu_repair_config"
@@ -37,19 +43,45 @@
     <menuitem id="menu_repair_brand"
               name="Hãng sản xuất"
               parent="menu_repair_config"
-              action="action_repair_brand"
+              action="techzone_management.action_repair_brand"
               sequence="10"/>
 
     <menuitem id="menu_repair_model"
               name="Dòng máy"
               parent="menu_repair_config"
-              action="action_repair_model"
+              action="techzone_management.action_repair_model"
               sequence="20"/>
+
+    <!-- Menu Checklist -->
+    <menuitem id="menu_repair_diagnosis"
+              name="Checklist"
+              parent="menu_repair_config"
+              action="techzone_management.action_repair_diagnosis"
+              sequence="30"/>
+
+    <!-- Menu Linh kiện Sửa chữa -->
+    <menuitem id="menu_repair_parts"
+              name="Linh kiện Sửa chữa"
+              parent="menu_repair_config"
+              action="techzone_management.action_repair_parts"
+              sequence="40"/>
 
     <!-- Menu Báo cáo -->
     <menuitem id="menu_repair_report"
               name="Báo cáo"
               parent="menu_repair_root"
               sequence="100"/>
+
+    <menuitem id="menu_report_repair_order"
+              name="Báo cáo Phiếu sửa chữa"
+              parent="menu_repair_report"
+              action="techzone_management.action_repair_order"
+              sequence="10"/>
+
+    <menuitem id="menu_report_pie_chart"
+              name="Tỉ trọng Doanh thu"
+              parent="menu_repair_report"
+              action="techzone_management.action_repair_line_pie"
+              sequence="20"/>
 
 </odoo>

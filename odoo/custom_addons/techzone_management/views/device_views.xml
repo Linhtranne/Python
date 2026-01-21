@@ -23,7 +23,7 @@
         <field name="arch" type="xml">
             <form string="Thiết bị">
                 <header>
-                    <button name="%(action_repair_order)d" type="action" 
+                    <button name="%(techzone_management.action_repair_order)d" type="action" 
                             string="Lịch sử Sửa chữa" 
                             context="{'default_device_id': id, 'search_default_device_id': id}"
                             class="oe_stat_button" icon="fa-wrench">
@@ -32,7 +32,7 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="%(action_repair_order)d" type="action" 
+                        <button name="%(techzone_management.action_repair_order)d" type="action" 
                                 context="{'default_device_id': id, 'search_default_device_id': id}"
                                 class="oe_stat_button" icon="fa-wrench">
                             <field name="repair_count" widget="statinfo" string="Sửa chữa"/>
@@ -40,9 +40,9 @@
                     </div>
                     <group>
                         <group>
-                            <field name="name" placeholder="Số Serial/IMEI"/>
+                            <field name="name"/>
                             <field name="serial_number"/>
-                            <field name="image" widget="image" class="oe_avatar"/>
+                            <field name="image" widget="image" class="oe_avatar techzone_device_image" options="{'size': [180, 180]}"/>
                         </group>
                         <group>
                             <field name="brand_id"/>
@@ -71,6 +71,16 @@
                                     <field name="issue_description"/>
                                     <field name="diagnosis_result"/>
                                     <field name="technician_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Lịch sử linh kiện">
+                            <field name="repair_order_ids" nolabel="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="state"/>
+                                    <field name="amount_total"/>
                                 </tree>
                             </field>
                         </page>
@@ -158,7 +168,7 @@
         <field name="arch" type="xml">
             <tree string="Hãng sản xuất">
                 <field name="name"/>
-                <field name="icon" widget="image"/>
+                <field name="icon" widget="image" class="techzone_brand_icon" options="{'size': [64, 64]}"/>
             </tree>
         </field>
     </record>

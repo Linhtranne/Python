@@ -15,62 +15,8 @@
                 <field name="date_receipt"/>
                 <field name="deadline"/>
                 <field name="amount_total"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state == 'diagnose' or state == 'quoted'"
-                       decoration-success="state == 'done' or state == 'returned'"
-                       decoration-danger="state == 'in_progress'"/>
+                <field name="state" widget="badge"/>
             </tree>
-        </field>
-    </record>
-
-    <!-- Repair Order Form View -->
-    <record id="view_repair_order_form" model="ir.ui.view">
-        <field name="name">repair.order.form</field>
-        <field name="model">repair.order</field>
-        <field name="arch" type="xml">
-            <form string="Phiếu sửa chữa">
-                <header>
-                        <button name="action_quote" string="Báo giá" type="object" class="oe_highlight"/>
-                        <button name="action_start" string="Bắt đầu sửa" type="object" class="oe_highlight"/>
-                        <button name="action_done" string="Hoàn thành" type="object" class="oe_highlight"/>
-                        <button name="action_return" string="Trả máy" type="object" class="oe_highlight"/>
-                        <button name="action_cancel" string="Hủy" type="object" class="btn-secondary"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,diagnose,quoted,in_progress,done,returned"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="partner_id"/>
-                            <field name="device_id"/>
-                            <field name="technician_id"/>
-                        </group>
-                        <group>
-                            <field name="date_receipt"/>
-                            <field name="deadline"/>
-                            <field name="amount_total"/>
-                        </group>
-                    </group>
-                    <notebook>
-                        <page string="Chi tiết vật tư/công" name="lines">
-                            <field name="line_ids" nolabel="1">
-                                <tree editable="bottom">
-                                    <field name="product_id"/>
-                                    <field name="product_uom_qty"/>
-                                    <field name="price_unit"/>
-                                    <field name="price_subtotal"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-                <chatter/>
-            </form>
         </field>
     </record>
 
@@ -86,26 +32,13 @@
                 <field name="technician_id"/>
                 <filter string="Phiếu quá hạn" name="overdue" 
                         domain="[('deadline', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', '!=', 'returned')]"/>
-                <filter string="Đang chờ linh kiện" name="waiting_parts" 
-                        domain="[('state', '=', 'quoted')]"/>
                 <group expand="0" string="Nhóm theo">
                     <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Kỹ thuật viên" name="group_technician" context="{'group_by': 'technician_id'}"/>
+                    <filter string="Hãng" name="group_brand" context="{'group_by': 'brand_id'}"/>
                     <filter string="Tháng" name="group_month" context="{'group_by': 'date_receipt:month'}"/>
                 </group>
             </search>
-        </field>
-    </record>
-
-    <!-- Repair Order Graph View -->
-    <record id="view_repair_order_graph" model="ir.ui.view">
-        <field name="name">repair.order.graph</field>
-        <field name="model">repair.order</field>
-        <field name="arch" type="xml">
-            <graph string="Báo cáo Sửa chữa" type="bar">
-                <field name="device_id" type="row"/>
-                <field name="amount_total" type="measure"/>
-            </graph>
         </field>
     </record>
 
@@ -116,24 +49,49 @@
         <field name="arch" type="xml">
             <pivot string="Báo cáo Doanh thu">
                 <field name="date_receipt" type="row" interval="month"/>
-                <field name="device_id" type="row"/>
-                <field name="technician_id" type="col"/>
+                <field name="brand_id" type="col"/>
                 <field name="amount_total" type="measure"/>
             </pivot>
         </field>
     </record>
 
-    <!-- Repair Order Action -->
-    <record id="action_repair_order" model="ir.actions.act_window">
-        <field name="name">Phiếu sửa chữa</field>
-        <field name="res_model">repair.order</field>
-        <field name="view_mode">tree,form,graph,pivot</field>
-        <field name="search_view_id" ref="view_repair_order_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Tạo phiếu sửa chữa mới
-            </p>
+    <!-- Repair Order Graph View (Bar Chart) -->
+    <record id="view_repair_order_graph" model="ir.ui.view">
+        <field name="name">repair.order.graph</field>
+        <field name="model">repair.order</field>
+        <field name="arch" type="xml">
+            <graph string="Số lượng phiếu theo Hãng" type="bar">
+                <field name="brand_id" type="row"/>
+                <field name="id" type="measure" operator="count" string="Số lượng"/>
+            </graph>
         </field>
     </record>
 
+    <!-- Repair Line Pie Chart -->
+    <record id="view_repair_line_pie" model="ir.ui.view">
+        <field name="name">repair.line.pie</field>
+        <field name="model">repair.line</field>
+        <field name="arch" type="xml">
+            <graph string="Doanh thu Linh kiện vs Công" type="pie">
+                <field name="is_repair_part" type="row"/>
+                <field name="price_subtotal" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Main Action for Repair Orders -->
+    <record id="action_repair_order" model="ir.actions.act_window">
+        <field name="name">Phiếu sửa chữa</field>
+        <field name="res_model">repair.order</field>
+        <field name="view_mode">tree,form,kanban,graph,pivot</field>
+        <field name="search_view_id" ref="view_repair_order_search"/>
+    </record>
+
+    <!-- Action for Pie Chart -->
+    <record id="action_repair_line_pie" model="ir.actions.act_window">
+        <field name="name">Tỉ trọng doanh thu</field>
+        <field name="res_model">repair.line</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_repair_line_pie"/>
+    </record>
 </odoo>

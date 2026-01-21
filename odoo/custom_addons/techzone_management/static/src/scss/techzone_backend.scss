@@ -1,0 +1,17 @@
+.techzone_device_image .o_field_image {
+  width: 180px;
+  height: 180px;
+}
+
+.techzone_device_image img {
+  object-fit: cover;
+}
+
+.techzone_brand_icon .o_field_image {
+  width: 64px;
+  height: 64px;
+}
+
+.techzone_brand_icon img {
+  object-fit: contain;
+}

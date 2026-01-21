@@ -1,0 +1,84 @@
+TECHZONE MANAGEMENT – KẾ HOẠCH DEMO FULL CHỨC NĂNG (A → Z)
+============================================================
+
+Mục tiêu: trình bày đủ 100 % yêu cầu Excel cho khách hàng trong 60–90 phút.
+
+------------------------------------------------------------
+I. CHUẨN BỊ TRƯỚC BUỔI DEMO
+------------------------------------------------------------
+1. Tạo DB demo (clone): techzone_demo
+2. Tải demo data:  -u techzone_management -d techzone_demo --load-demo=y
+3. Tài khoản dùng demo
+   • manager  (Group: Manager)
+   • tech1    (Group: Technician)
+4. Mở sẵn 2 tab trình duyệt (manager + tech1)
+5. Slide mở đầu: 3 trang (Mục tiêu – Phạm vi – Workflow)
+6. In checklist bên dưới để tick khi trình bày
+
+------------------------------------------------------------
+II. AGENDA CHI TIẾT
+------------------------------------------------------------
+Thời gian | Nội dung | Người | KPI minh-chứng
+--------- | -------- | ----- | --------------
+5’  Giới thiệu module + menu
+
+BLOCK A – Master Data (10’)
+  • Hãng & Model (2’) – Manager – Menu Cấu hình → Apple
+  • Thiết bị       (3’) – Manager – Kanban, Search “hết bảo hành”
+  • Khách hàng     (2’) – Manager – Tab Thiết bị sở hữu
+  • Linh kiện      (3’) – Manager – Checkbox “Là linh kiện”
+
+BLOCK B – Kỹ thuật / Lịch sử (10’)
+  • Lịch hẹn calendar  (3’) – Reception
+  • Lịch sử lỗi + ảnh  (3’) – Tech1
+  • Sequence + Warranty(4’) – Manager
+
+BLOCK C – Giao dịch (15’)
+  • Tạo phiếu (Draft)        (2’)
+  • Kiểm tra → Báo giá → sửa (3’)
+  • Onchange + Validation    (3’)
+  • Hoàn thành + Trả máy     (3’)
+  • Smart-button & update dev(4’)
+
+BLOCK D – Phân quyền (5’)
+  • So sánh Manager vs Tech  (2’)
+  • Xoá phiếu (rule)         (3’)
+
+BLOCK E – Báo cáo (10’)
+  • Pivot Tháng/ Hãng/ KTV   (4’)
+  • Bar chart số lượng hãng  (3’)
+  • Pie chart Linh kiện/ Công(3’)
+
+Kết thúc & Q-A (5’)
+
+------------------------------------------------------------
+III. CHECKLIST NGHIỆP VỤ
+------------------------------------------------------------
+[ ] Sequence DEV/00001 & REP/00001
+[ ] IMEI/Serial UNIQUE
+[ ] 6 state + Cancel; buttons OK
+[ ] Read-only khi Done/Returned/Cancel
+[ ] Widget section_and_note line
+[ ] Onchange product → price
+[ ] Onchange partner → domain device
+[ ] Validation deadline ≥ nhận, qty ≥ 0
+[ ] Computed total, warranty, repair_count
+[ ] Smart-button Device & Partner
+[ ] Tab Lịch sử lỗi & Linh kiện
+[ ] Calendar view Lịch hẹn
+[ ] Kanban thiết bị
+[ ] Pivot Tháng / Hãng / KTV
+[ ] Bar chart số lượng theo Hãng
+[ ] Pie chart Linh kiện vs Công
+[ ] Record rule Technician (chỉ phiếu mình)
+[ ] Manager full quyền
+[ ] Demo data đủ
+[ ] Không lỗi icon
+
+------------------------------------------------------------
+IV. TIPS DEMO
+------------------------------------------------------------
+• Bật Developer mode để show field when needed.
+• Dùng filter "Máy hết bảo hành", "Phiếu quá hạn".
+• Gõ 1 note trong Chatter khi đổi trạng thái.
+• Nếu thời gian gấp, có thể rút bớt phần Master Data phụ.
